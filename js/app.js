@@ -1,6 +1,8 @@
 const cfg = window.NFC_SUPABASE || window.QR_ACCESS_CONFIG || {};
 const isConfigured = cfg.url && cfg.anonKey && !cfg.url.includes("YOUR_") && !cfg.anonKey.includes("YOUR_");
 const db = isConfigured && window.supabase ? window.supabase.createClient(cfg.url, cfg.anonKey) : null;
+const PUBLIC_BASE_URL = "https://nfc11.netlify.app";
+const APPROVE_BASE_URL = `${PUBLIC_BASE_URL}/approve.html`;
 const POLL_INTERVAL_MS = 1000;
 const SESSION_DURATION_MS = 2 * 60 * 1000;
 const DEFAULT_LOCATION = "Secure Login Approval";
@@ -650,11 +652,7 @@ function buildApprovalUrl(sessionId) {
 }
 
 function getApproveBaseUrl() {
-  if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-    const path = window.location.pathname.replace(/[^/]*$/, "approve.html");
-    return `${window.location.origin}${path}`;
-  }
-  return "approve.html";
+  return APPROVE_BASE_URL;
 }
 
 function isExpired(session) {
