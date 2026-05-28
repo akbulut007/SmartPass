@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Access Verification | Users</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/supabase-config.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body data-page="users">
+  <aside class="sidebar">
+    <a class="logo" href="dashboard.html"><span>QR</span>Access</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="my-card.html">My Identity</a>
+      <a class="active" href="users.html">Users</a>
+      <a href="logs.html">Logs</a>
+      <a href="reports.html">Reports</a>
+      <a href="security.html">Security</a>
+    </nav>
+    <button id="logoutBtn" class="ghost-btn">Logout</button>
+  </aside>
+
+  <main class="app-main">
+    <header class="page-header"><div><p class="eyebrow">Identity Registry</p><h1>Users and Digital IDs</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <section class="management-grid">
+      <form id="addUserForm" class="glass-panel admin-form">
+        <h2>Add Digital Identity</h2>
+        <label>Full name<input id="newFullName" required placeholder="Grace Hopper"></label>
+        <label>Email<input id="newEmail" type="email" required placeholder="employee@company.com"></label>
+        <label>UID<div class="inline-field"><input id="newUid" required><button id="generateUidBtn" type="button" class="ghost-btn">Generate UID</button></div></label>
+        <label>Role<select id="newRole"><option>student</option><option>employee</option><option>admin</option><option>guest</option></select></label>
+        <label>Status<select id="newStatus"><option>active</option><option>blocked</option><option>expired</option></select></label>
+        <button class="primary-btn" type="submit">Save Identity</button>
+        <p id="userFormMessage" class="form-message"></p>
+      </form>
+      <section class="glass-panel table-panel">
+        <div class="section-title"><h2>Registered Identities</h2><button id="refreshUsersBtn" class="ghost-btn">Refresh</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>UID</th><th>Role</th><th>Status</th><th>Created</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

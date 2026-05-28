@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPass QR Access | Reports</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/supabase-config.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body data-page="reports">
+  <aside class="sidebar">
+    <a class="logo" href="dashboard.html"><span>QR</span>SmartPass</a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a><a href="my-card.html">My Identity</a><a href="users.html">Users</a><a href="logs.html">Logs</a><a class="active" href="reports.html">Reports</a><a href="security.html">Security</a>
+    </nav>
+    <button id="logoutBtn" class="ghost-btn">Logout</button>
+  </aside>
+  <main class="app-main">
+    <header class="page-header"><div><p class="eyebrow">Operational Analytics</p><h1>Reports</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <section class="stats-grid">
+      <article class="metric-card granted"><p>Approved</p><strong id="reportApproved">0</strong><span>Confirmed sessions</span></article>
+      <article class="metric-card denied"><p>Rejected</p><strong id="reportRejected">0</strong><span>Rejected sessions</span></article>
+      <article class="metric-card expired"><p>Expired</p><strong id="reportExpired">0</strong><span>Timed-out sessions</span></article>
+      <article class="metric-card"><p>Active Users</p><strong id="reportActive">0</strong><span>Enabled identities</span></article>
+      <article class="metric-card granted"><p>Approval Rate</p><strong id="reportGrantRate">0%</strong><span>Approved vs finished sessions</span></article>
+    </section>
+    <section class="report-bars glass-panel">
+      <h2>Access Distribution</h2>
+      <div class="bar-row"><span>Approved</span><div><i id="approvedBar"></i></div><b id="approvedBarText">0</b></div>
+      <div class="bar-row"><span>Rejected</span><div><i id="rejectedBar"></i></div><b id="rejectedBarText">0</b></div>
+      <div class="bar-row"><span>Expired</span><div><i id="expiredBar"></i></div><b id="expiredBarText">0</b></div>
+      <div class="bar-row"><span>Active</span><div><i id="activeBar"></i></div><b id="activeBarText">0</b></div>
+    </section>
+  </main>
+</body>
+</html>

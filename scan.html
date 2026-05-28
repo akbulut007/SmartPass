@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPass | Legacy Redirect</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="approve-body">
+  <main class="approve-shell">
+    <section class="approve-panel glass-panel waiting">
+      <div class="smartpass-logo">SmartPass</div>
+      <p class="eyebrow">QR Access Verification</p>
+      <h1>Approval Page Moved</h1>
+      <p id="legacyScanMessage">Redirecting to the secure approval page...</p>
+      <a id="legacyApproveLink" class="primary-btn approve-button" href="approve.html">Open approval page</a>
+    </section>
+  </main>
+  <script>
+    const session = new URLSearchParams(window.location.search).get("session");
+    const target = session
+      ? `approve.html?session=${encodeURIComponent(session)}`
+      : "approve.html";
+    document.getElementById("legacyApproveLink").href = target;
+    if (!session) {
+      document.getElementById("legacyScanMessage").textContent = "Missing session ID. Open the current QR link from My Identity.";
+    } else {
+      window.location.replace(target);
+    }
+  </script>
+</body>
+</html>

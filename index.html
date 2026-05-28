@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Access Verification | Authentication</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/supabase-config.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body data-page="auth" class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-visual">
+      <div class="brand-mark">QR</div>
+      <h1>QR-Based Login Approval</h1>
+      <p>Digital identity approval, real-time login confirmation, and secure access validation for modern university and enterprise systems.</p>
+      <div class="signal-grid">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <section class="auth-card glass-panel">
+      <div class="auth-tabs">
+        <button class="tab-button active" data-auth-tab="login">Login</button>
+        <button class="tab-button" data-auth-tab="signup">Register</button>
+      </div>
+
+      <form id="loginForm" class="auth-form active">
+        <h2>Welcome back</h2>
+        <p>Sign in to manage QR approval sessions, digital identities, and access events.</p>
+        <label>Email
+          <input type="email" id="loginEmail" required autocomplete="email" placeholder="admin@university.edu">
+        </label>
+        <label>Password
+          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Password">
+        </label>
+        <button class="primary-btn" type="submit">Login</button>
+      </form>
+
+      <form id="signupForm" class="auth-form">
+        <h2>Create identity</h2>
+        <p>Your secure digital identity is generated automatically after login.</p>
+        <label>Full name
+          <input type="text" id="signupName" required autocomplete="name" placeholder="Ada Lovelace">
+        </label>
+        <label>Email
+          <input type="email" id="signupEmail" required autocomplete="email" placeholder="student@university.edu">
+        </label>
+        <label>Password
+          <input type="password" id="signupPassword" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
+        </label>
+        <button class="primary-btn" type="submit">Create Account</button>
+      </form>
+
+      <p id="authMessage" class="form-message"></p>
+    </section>
+  </main>
+</body>
+</html>
