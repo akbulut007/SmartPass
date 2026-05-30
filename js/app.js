@@ -7,7 +7,7 @@ async function init() {
   if (!isConfigured) showConfigWarning();
   if (!page) return;
 
-  if (page === "auth") return initLoginPage();
+  if (["user-login", "admin-login", "register"].includes(page)) return initLoginPage();
   if (page === "approve") return initMobileApproval();
   if (page === "scan") return initMobileApproval();
 

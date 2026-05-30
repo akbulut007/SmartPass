@@ -1,7 +1,8 @@
 const ORGANIZATION_ACCESS_CODE = "5545";
+const ADMIN_ACCESS_CODE = "9999";
 const ADMIN_EMAIL = "yusufakbulut522@gmail.com";
 const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "security"];
-const ACCESS_RESTRICTED_MESSAGE = "Access restricted to administrators.";
+const ACCESS_RESTRICTED_MESSAGE = "Administrator access required.";
 
 function bindLogout() {
   const btn = $("logoutBtn");
@@ -102,18 +103,12 @@ function initAuth() {
     if (data.session?.user) redirectToRoleHome(data.session.user);
   });
 
-  document.querySelectorAll("[data-auth-tab]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-auth-tab]").forEach((b) => b.classList.remove("active"));
-      document.querySelectorAll(".auth-form").forEach((f) => f.classList.remove("active"));
-      btn.classList.add("active");
-      $(`${btn.dataset.authTab}Form`)?.classList.add("active");
-    });
-  });
-
-  $("loginForm")?.addEventListener("submit", login);
+  showAuthRedirectMessage();
+  $("userLoginForm")?.addEventListener("submit", userLogin);
+  $("adminLoginForm")?.addEventListener("submit", adminLogin);
+  $("registerForm")?.addEventListener("submit", register);
   $("organizationAccessCode")?.addEventListener("input", sanitizeOrganizationAccessCode);
-  $("signupForm")?.addEventListener("submit", register);
+  $("adminAccessCode")?.addEventListener("input", sanitizeOrganizationAccessCode);
 }
 
 function initLoginPage() {
@@ -124,42 +119,82 @@ function sanitizeOrganizationAccessCode(event) {
   event.target.value = event.target.value.replace(/\D/g, "").slice(0, 4);
 }
 
-async function login(event) {
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function showAuthRedirectMessage() {
+  const message = sessionStorage.getItem("authMessage");
+  if (!message) return;
+  sessionStorage.removeItem("authMessage");
+  setMessage("authMessage", message);
+}
+
+async function userLogin(event) {
   event.preventDefault();
   const code = $("organizationAccessCode")?.value.trim() || "";
   if (!code) return setMessage("authMessage", "Please enter organization access code.", "error");
   if (code !== ORGANIZATION_ACCESS_CODE) return setMessage("authMessage", "Invalid organization access code.", "error");
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+  const email = $("userLoginEmail").value.trim().toLowerCase();
+  if (email === ADMIN_EMAIL) return setMessage("authMessage", "Please use Admin Login.", "error");
 
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({
-    email: $("loginEmail").value.trim(),
-    password: $("loginPassword").value
+    email,
+    password: $("userLoginPassword").value
   });
   if (error) return setMessage("authMessage", error.message, "error");
+  window.location.href = "my-card.html";
+}
+
+async function adminLogin(event) {
+  event.preventDefault();
+  const email = $("adminLoginEmail").value.trim().toLowerCase();
+  const code = $("adminAccessCode")?.value.trim() || "";
+  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) return setMessage("authMessage", "Access denied.", "error");
+  if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+
+  setMessage("authMessage", "Signing in...");
+  const { error } = await db.auth.signInWithPassword({
+    email,
+    password: $("adminLoginPassword").value
+  });
+  if (error) return setMessage("authMessage", "Access denied.", "error");
   const user = await getCurrentUser();
-  redirectToRoleHome(user);
+  if (!isAdminUser(user)) {
+    await db.auth.signOut();
+    return setMessage("authMessage", "Access denied.", "error");
+  }
+  window.location.href = "dashboard.html";
 }
 
 async function register(event) {
   event.preventDefault();
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
-  setMessage("authMessage", "Creating digital identity...");
+  const fullName = $("registerName").value.trim();
+  const email = $("registerEmail").value.trim();
+  const password = $("registerPassword").value;
+  const confirmPassword = $("registerConfirmPassword").value;
+  if (!fullName) return setMessage("authMessage", "Please enter your full name.", "error");
+  if (!isValidEmail(email)) return setMessage("authMessage", "Please enter a valid email address.", "error");
+  if (password.length < 6) return setMessage("authMessage", "Password must be at least 6 characters.", "error");
+  if (password !== confirmPassword) return setMessage("authMessage", "Passwords do not match.", "error");
+  if (email.toLowerCase() === ADMIN_EMAIL) return setMessage("authMessage", "Administrator account cannot be created here.", "error");
+
+  setMessage("authMessage", "Creating user account...");
   try {
-    const fullName = $("signupName").value.trim();
-    const email = $("signupEmail").value.trim();
-    const password = $("signupPassword").value;
     const { data, error } = await db.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } }
     });
     if (error) return setMessage("authMessage", error.message, "error");
-    if (data.user) await ensureUserCard(data.user, fullName);
-    const { error: loginError } = await db.auth.signInWithPassword({ email, password });
-    if (loginError) return setMessage("authMessage", "Account created. Disable email confirmation in Supabase Auth.", "error");
-    const user = await getCurrentUser();
-    redirectToRoleHome(user);
+    const sessionUser = await getCurrentUser();
+    if (data.user && sessionUser) await ensureUserCard(sessionUser, fullName);
+    if (sessionUser) await db.auth.signOut();
+    sessionStorage.setItem("authMessage", "Registration successful. Please sign in using your credentials.");
+    window.location.href = "user-login.html";
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");
   }

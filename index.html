@@ -3,70 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Access Verification | Authentication</title>
+  <title>SmartPass | Secure QR-Based Access Control</title>
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="js/config.js"></script>
-  <script defer src="js/utils.js"></script>
-  <script defer src="js/database.js"></script>
-  <script defer src="js/auth.js"></script>
-  <script defer src="js/qr.js"></script>
-  <script defer src="js/approval.js"></script>
-  <script defer src="js/dashboard.js"></script>
-  <script defer src="js/logs.js"></script>
-  <script defer src="js/reports.js"></script>
-  <script defer src="js/app.js"></script>
 </head>
-<body data-page="auth" class="auth-body">
-  <main class="auth-shell">
-    <section class="auth-visual">
+<body class="auth-body">
+  <main class="landing-shell">
+    <section class="landing-hero">
       <div class="brand-mark">QR</div>
-      <h1>QR-Based Login Approval</h1>
-      <p>Digital identity approval, real-time login confirmation, and secure access validation for modern university and enterprise systems.</p>
-      <div class="signal-grid">
-        <span></span><span></span><span></span><span></span>
+      <p class="eyebrow">SmartPass</p>
+      <h1>Secure QR-Based Access Control System</h1>
+      <p>Professional multi-layer access control for authenticated users, mobile QR approval, and administrator oversight.</p>
+      <div class="landing-actions" aria-label="SmartPass entry options">
+        <a class="glass-panel metric-card" href="user-login.html">
+          <p>Access</p>
+          <strong>User Login</strong>
+          <span>Sign in to your SmartPass identity.</span>
+        </a>
+        <a class="glass-panel metric-card" href="register.html">
+          <p>Enroll</p>
+          <strong>User Register</strong>
+          <span>Create a standard user account.</span>
+        </a>
+        <a class="glass-panel metric-card" href="admin-login.html">
+          <p>Control</p>
+          <strong>Admin Login</strong>
+          <span>Open administrator workspace.</span>
+        </a>
       </div>
-    </section>
-
-    <section class="auth-card glass-panel">
-      <div class="auth-tabs">
-        <button class="tab-button active" data-auth-tab="login">Login</button>
-        <button class="tab-button" data-auth-tab="signup">Register</button>
+      <div class="security-note landing-note">
+        This platform uses multi-layer verification:
+        <span>1. Email &amp; Password</span>
+        <span>2. Access Code</span>
+        <span>3. QR-Based Approval</span>
       </div>
-
-      <form id="loginForm" class="auth-form active">
-        <h2>Welcome back</h2>
-        <p>Sign in to manage QR approval sessions, digital identities, and access events.</p>
-        <label>Email
-          <input type="email" id="loginEmail" required autocomplete="email" placeholder="admin@university.edu">
-        </label>
-        <label>Password
-          <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Password">
-        </label>
-        <label>Organization Access Code
-          <input type="password" id="organizationAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter organization code">
-          <span class="helper-text">Access restricted to authorized users.</span>
-        </label>
-        <p class="security-note">This system uses email/password authentication, organization access code, and QR-based mobile approval.</p>
-        <button class="primary-btn" type="submit">Login</button>
-      </form>
-
-      <form id="signupForm" class="auth-form">
-        <h2>Create identity</h2>
-        <p>Your secure digital identity is generated automatically after login.</p>
-        <label>Full name
-          <input type="text" id="signupName" required autocomplete="name" placeholder="Ada Lovelace">
-        </label>
-        <label>Email
-          <input type="email" id="signupEmail" required autocomplete="email" placeholder="student@university.edu">
-        </label>
-        <label>Password
-          <input type="password" id="signupPassword" required minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters">
-        </label>
-        <button class="primary-btn" type="submit">Create Account</button>
-      </form>
-
-      <p id="authMessage" class="form-message"></p>
     </section>
   </main>
 </body>
