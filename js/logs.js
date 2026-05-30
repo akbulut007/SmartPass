@@ -1,4 +1,5 @@
 function initLogs() {
+  if (document.body.dataset.page !== "logs") return;
   $("refreshLogsBtn")?.addEventListener("click", loadLogsTable);
   loadLogsTable();
 }
@@ -26,4 +27,3 @@ function renderLogsTable(logs) {
 function filterLogs(logs, predicate) {
   return logs.filter(predicate);
 }
-

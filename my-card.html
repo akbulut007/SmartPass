@@ -63,7 +63,7 @@
         </div>
 
         <div class="qr-stage">
-          <img id="qrImage" class="qr-image" alt="QR approval code" title="Open approval page">
+          <img id="qrImage" class="qr-image" alt="QR approval code" title="Open approval page" loading="lazy" decoding="async">
           <p class="qr-instruction">Scan or click the QR code to approve</p>
           <button id="approvalOpenLink" class="ghost-btn approval-open-link" type="button" hidden>Open</button>
         </div>
@@ -86,7 +86,7 @@
             <div><span>Timer</span><strong id="sessionCountdown">Session expires in: --:--</strong></div>
             <div><span>Device</span><strong id="approvalDevice">Desktop</strong></div>
             <div><span>Netlify URL</span><strong>https://nfc11.netlify.app</strong></div>
-            <div><span>Polling</span><strong>Supabase every 1 second</strong></div>
+            <div><span>Polling</span><strong>Supabase every 3 seconds</strong></div>
           </div>
           <div class="approval-url-detail">
             <span>Approval URL</span>

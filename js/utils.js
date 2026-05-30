@@ -1,6 +1,6 @@
 const PUBLIC_BASE_URL = "https://nfc11.netlify.app";
 const APPROVE_BASE_URL = `${PUBLIC_BASE_URL}/approve.html`;
-const POLL_INTERVAL_MS = 1000;
+const POLL_INTERVAL_MS = 3000;
 const SESSION_DURATION_MS = 2 * 60 * 1000;
 const DEFAULT_LOCATION = "Secure Login Approval";
 
@@ -14,8 +14,16 @@ function showConfigWarning() {
 }
 
 function stopTimers() {
-  if (typeof approvalPollTimer !== "undefined" && approvalPollTimer) clearInterval(approvalPollTimer);
-  if (typeof countdownTimer !== "undefined" && countdownTimer) clearInterval(countdownTimer);
+  if (typeof approvalPollTimer !== "undefined" && approvalPollTimer) {
+    clearInterval(approvalPollTimer);
+    approvalPollTimer = null;
+  }
+  if (typeof countdownTimer !== "undefined" && countdownTimer) {
+    clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
+  if (typeof isApprovalPollingActive !== "undefined") isApprovalPollingActive = false;
+  if (typeof isApprovalPollInFlight !== "undefined") isApprovalPollInFlight = false;
 }
 
 function getDeviceLabel() {
@@ -118,4 +126,3 @@ function title(value) {
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (match) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[match]));
 }
-

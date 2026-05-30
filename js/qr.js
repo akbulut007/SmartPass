@@ -19,14 +19,12 @@ function openApprovalPage() {
     showPageError("Approval page link is not ready yet.");
     return;
   }
-  console.log("[SmartPass] Opening approval page", currentApprovalUrl);
   window.open(currentApprovalUrl, "_blank");
 }
 
 function renderApprovalQr(session, card) {
   if (!session?.id) throw new Error("Session could not be created.");
   const approvalUrl = buildApprovalUrl(session.id);
-  console.log("[SmartPass] QR approval URL", approvalUrl);
   currentApprovalUrl = approvalUrl;
   $("approvalSessionId").textContent = session.id;
   $("approvalCreatedAt").textContent = formatDate(session.created_at);

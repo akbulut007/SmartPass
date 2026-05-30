@@ -3,6 +3,8 @@ var countdownTimer = null;
 var currentApprovalSession = null;
 var currentApprovalCard = null;
 var currentApprovalUrl = "";
+var isApprovalPollingActive = false;
+var isApprovalPollInFlight = false;
 
 function initMyIdentity(user) {
   return loadMyCard(user);
@@ -57,7 +59,6 @@ async function simulateDesktopDecision(result) {
   }
   disableSimulationButtons();
   const isApproved = result === "approved";
-  console.log("[SmartPass] Desktop simulation started", { sessionId: currentApprovalSession.id, result });
   try {
     const update = {
       status: result,
@@ -74,7 +75,6 @@ async function simulateDesktopDecision(result) {
     } else {
       setApprovalState("rejected", "ACCESS DENIED", "", "");
     }
-    console.log("[SmartPass] Desktop simulation completed", { sessionId: updatedSession.id, result });
   } catch (error) {
     enableSimulationButtons();
     showPageError(readableDbError(error));
@@ -93,16 +93,19 @@ function enableSimulationButtons() {
 }
 
 function startApprovalPolling(sessionId) {
+  if (document.body.dataset.page !== "my-card") return;
   if (approvalPollTimer) clearInterval(approvalPollTimer);
+  isApprovalPollingActive = true;
   approvalPollTimer = setInterval(() => checkApprovalStatus(sessionId), POLL_INTERVAL_MS);
   checkApprovalStatus(sessionId);
 }
 
 async function checkApprovalStatus(sessionId) {
+  if (!isApprovalPollingActive || document.body.dataset.page !== "my-card" || isApprovalPollInFlight) return;
+  isApprovalPollInFlight = true;
   try {
     const session = await fetchApprovalSession(sessionId);
     if (!session) throw new Error("Approval session was not found.");
-    console.log("[SmartPass] Desktop poll", { sessionId, status: session.status });
     if (session.status === "waiting" && isExpired(session)) {
       await expireSession(session);
       setApprovalState("expired", "SESSION EXPIRED", "", "");
@@ -127,6 +130,8 @@ async function checkApprovalStatus(sessionId) {
     const message = readableDbError(error);
     setApprovalState("waiting", "WAITING FOR APPROVAL", message, "");
     showPageError(message);
+  } finally {
+    isApprovalPollInFlight = false;
   }
 }
 
@@ -142,7 +147,6 @@ function startCountdown(session) {
 }
 
 async function expireSession(session) {
-  console.log("[SmartPass] Expiring session", session.id);
   const { error } = await db
     .from("approval_sessions")
     .update({ status: "expired" })
@@ -234,7 +238,6 @@ async function completeMobileSession(sessionId, result) {
       device: getDeviceLabel(),
       approved_at: new Date().toISOString()
     };
-    console.log("[SmartPass] Updating approval session", sessionId, update);
     const updatedSession = await updateApprovalSession(sessionId, update);
     if (updatedSession?.status !== result) throw new Error("Database update failed.");
     await insertAccessLog(updatedSession, card, result);

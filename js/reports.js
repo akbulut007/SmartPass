@@ -1,4 +1,5 @@
 async function initReports() {
+  if (document.body.dataset.page !== "reports") return;
   return loadReports();
 }
 
@@ -26,4 +27,3 @@ function renderReports(report) {
   setBar("expiredBar", "expiredBarText", counts.expired, totalFinished || 1);
   setBar("activeBar", "activeBarText", active, cards.length || 1);
 }
-

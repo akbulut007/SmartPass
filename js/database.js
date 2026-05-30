@@ -42,7 +42,6 @@ async function createApprovalSession(card) {
     expires_at: expiresAt,
     device: getDeviceLabel()
   };
-  console.log("[SmartPass] Creating approval session", record);
   const { data, error } = await db
     .from("approval_sessions")
     .insert(record)
@@ -130,7 +129,6 @@ async function insertAccessLog(session, card, result) {
     device: getDeviceLabel(),
     location: DEFAULT_LOCATION
   };
-  console.log("[SmartPass] Inserting access log", row);
   const { error } = await db.from("access_logs").insert(row);
   if (error) throw error;
 }
@@ -144,4 +142,3 @@ async function createStandaloneUserCard(record) {
   const { error } = await db.from("users_cards").insert(record);
   if (error) throw error;
 }
-

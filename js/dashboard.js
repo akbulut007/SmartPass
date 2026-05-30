@@ -1,4 +1,5 @@
 async function initDashboard() {
+  if (document.body.dataset.page !== "dashboard") return;
   return loadDashboard();
 }
 
@@ -46,6 +47,7 @@ function renderRecentApprovals(logs) {
 }
 
 function initUsers() {
+  if (document.body.dataset.page !== "users") return;
   $("refreshUsersBtn")?.addEventListener("click", loadUsersTable);
   $("usersTable")?.addEventListener("change", updateCardFromTable);
   loadUsersTable();
