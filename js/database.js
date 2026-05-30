@@ -1,7 +1,7 @@
 async function getUserCard(user) {
   const { data, error } = await db
     .from("users_cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("user_id", user.id)
     .maybeSingle();
   if (error) throw error;
@@ -21,7 +21,7 @@ async function createUserCard(user, suppliedName) {
   const { data, error } = await db
     .from("users_cards")
     .insert(record)
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .single();
   if (error) throw error;
   return data;
@@ -80,7 +80,7 @@ async function fetchApprovalSession(sessionId) {
 async function fetchCardByUid(uid) {
   const { data, error } = await db
     .from("users_cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("uid", uid)
     .maybeSingle();
   if (error) throw error;
@@ -90,7 +90,7 @@ async function fetchCardByUid(uid) {
 async function fetchCards() {
   const { data, error } = await db
     .from("users_cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data || [];
@@ -135,6 +135,11 @@ async function insertAccessLog(session, card, result) {
 
 async function updateUserCardField(cardId, field, value) {
   const { error } = await db.from("users_cards").update({ [field]: value }).eq("id", cardId);
+  if (error) throw error;
+}
+
+async function updateUserCard(cardId, update) {
+  const { error } = await db.from("users_cards").update(update).eq("id", cardId);
   if (error) throw error;
 }
 

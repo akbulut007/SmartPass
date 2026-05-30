@@ -477,6 +477,29 @@ td { color: #d6e9ef; }
   border-radius: 10px;
   background: rgba(255,255,255,.04);
 }
+.table-input {
+  min-width: 92px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+}
+.access-code-control {
+  display: grid;
+  grid-template-columns: minmax(86px, 110px) auto;
+  gap: 8px;
+  align-items: center;
+}
+.access-code-input {
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+.generate-code-btn,
+.save-user-btn {
+  min-height: 38px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
 .table-select.active { color: var(--green); border-color: rgba(50,245,155,.35); }
 .table-select.blocked, .table-select.expired { color: var(--red); border-color: rgba(255,95,122,.35); }
 .admin-form { display: grid; gap: 14px; align-content: start; }
