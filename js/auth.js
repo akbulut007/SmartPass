@@ -1,3 +1,5 @@
+const ORGANIZATION_ACCESS_CODE = "5545";
+
 function bindLogout() {
   const btn = $("logoutBtn");
   if (!btn) return;
@@ -58,7 +60,6 @@ function initAuth() {
   });
 
   $("loginForm")?.addEventListener("submit", login);
-  $("personalAccessCode")?.addEventListener("input", sanitizePersonalAccessCode);
   $("signupForm")?.addEventListener("submit", register);
 }
 
@@ -66,36 +67,19 @@ function initLoginPage() {
   initAuth();
 }
 
-function sanitizePersonalAccessCode(event) {
-  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 4);
-}
-
 async function login(event) {
   event.preventDefault();
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+  const code = $("organizationAccessCode")?.value.trim() || "";
+  if (!code) return setMessage("authMessage", "Please enter organization access code.", "error");
+  if (code !== ORGANIZATION_ACCESS_CODE) return setMessage("authMessage", "Invalid organization access code.", "error");
 
   setMessage("authMessage", "Signing in...");
-  const enteredAccessCode = $("personalAccessCode")?.value.trim() || "";
-  const { data, error } = await db.auth.signInWithPassword({
+  const { error } = await db.auth.signInWithPassword({
     email: $("loginEmail").value.trim(),
     password: $("loginPassword").value
   });
   if (error) return setMessage("authMessage", error.message, "error");
-  try {
-    const card = await getUserCard(data.user);
-    const assignedAccessCode = card?.access_code?.trim();
-    if (!assignedAccessCode) {
-      await db.auth.signOut();
-      return setMessage("authMessage", "No personal access code assigned. Contact administrator.", "error");
-    }
-    if (enteredAccessCode !== assignedAccessCode) {
-      await db.auth.signOut();
-      return setMessage("authMessage", "Invalid personal access code.", "error");
-    }
-  } catch (error) {
-    await db.auth.signOut();
-    return setMessage("authMessage", readableDbError(error), "error");
-  }
   window.location.href = "dashboard.html";
 }
 
