@@ -44,9 +44,10 @@
           <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="Password">
         </label>
         <label>Organization Access Code
-          <input type="text" id="organizationAccessCode" class="code-input" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="5545">
-          <span class="helper-text">Enter the organization code provided by the administrator.</span>
+          <input type="password" id="organizationAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter organization code">
+          <span class="helper-text">Access restricted to authorized users.</span>
         </label>
+        <p class="security-note">This system uses email/password authentication, organization access code, and QR-based mobile approval.</p>
         <button class="primary-btn" type="submit">Login</button>
       </form>
 

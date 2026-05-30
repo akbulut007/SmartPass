@@ -60,6 +60,7 @@ function initAuth() {
   });
 
   $("loginForm")?.addEventListener("submit", login);
+  $("organizationAccessCode")?.addEventListener("input", sanitizeOrganizationAccessCode);
   $("signupForm")?.addEventListener("submit", register);
 }
 
@@ -67,12 +68,16 @@ function initLoginPage() {
   initAuth();
 }
 
+function sanitizeOrganizationAccessCode(event) {
+  event.target.value = event.target.value.replace(/\D/g, "").slice(0, 4);
+}
+
 async function login(event) {
   event.preventDefault();
-  if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
   const code = $("organizationAccessCode")?.value.trim() || "";
   if (!code) return setMessage("authMessage", "Please enter organization access code.", "error");
   if (code !== ORGANIZATION_ACCESS_CODE) return setMessage("authMessage", "Invalid organization access code.", "error");
+  if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({

@@ -133,10 +133,33 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 label { display: grid; gap: 8px; color: #cfe8ef; font-weight: 700; }
 .helper-text { color: var(--muted); font-size: .86rem; line-height: 1.45; font-weight: 500; }
 .code-input {
-  max-width: 150px;
-  letter-spacing: .28em;
+  max-width: 100%;
+  letter-spacing: 0;
   text-align: center;
   font-weight: 900;
+}
+.pin-input {
+  max-width: 240px;
+  border-color: rgba(53, 231, 255, 0.28);
+  background:
+    linear-gradient(135deg, rgba(53, 231, 255, 0.08), rgba(50, 245, 155, 0.04)),
+    rgba(4, 12, 18, 0.84);
+  font-size: 18px;
+}
+.pin-input::placeholder {
+  color: rgba(145, 169, 184, 0.72);
+  font-size: 14px;
+  font-weight: 700;
+}
+.security-note {
+  margin: 2px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(53, 231, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(53, 231, 255, 0.055);
+  color: #b8d3dc !important;
+  font-size: 13px;
+  line-height: 1.45 !important;
 }
 input, select {
   width: 100%;
