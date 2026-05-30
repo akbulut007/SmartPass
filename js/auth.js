@@ -1,4 +1,7 @@
 const ORGANIZATION_ACCESS_CODE = "5545";
+const ADMIN_EMAIL = "yusufakbulut522@gmail.com";
+const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "security"];
+const ACCESS_RESTRICTED_MESSAGE = "Access restricted to administrators.";
 
 function bindLogout() {
   const btn = $("logoutBtn");
@@ -45,9 +48,58 @@ function setSessionInfo(user) {
   if ($("sessionInfo")) $("sessionInfo").textContent = user.email;
 }
 
+function getUserRole(user) {
+  return user?.email?.toLowerCase() === ADMIN_EMAIL ? "admin" : "student";
+}
+
+function isAdminUser(user) {
+  return getUserRole(user) === "admin";
+}
+
+function getRoleHomePage(user) {
+  return isAdminUser(user) ? "dashboard.html" : "my-card.html";
+}
+
+function redirectToRoleHome(user) {
+  window.location.href = getRoleHomePage(user);
+}
+
+function enforceRoleAccess(user, pageName) {
+  if (!ADMIN_ONLY_PAGES.includes(pageName) || isAdminUser(user)) return true;
+  sessionStorage.setItem("accessRestrictedMessage", ACCESS_RESTRICTED_MESSAGE);
+  window.location.href = "my-card.html";
+  return false;
+}
+
+function renderRoleNavigation(user) {
+  const nav = document.querySelector(".sidebar nav");
+  if (!nav) return;
+  const links = isAdminUser(user)
+    ? [
+        ["dashboard.html", "Dashboard"],
+        ["my-card.html", "My Identity"],
+        ["users.html", "Users"],
+        ["logs.html", "Logs"],
+        ["reports.html", "Reports"],
+        ["security.html", "Security"]
+      ]
+    : [["my-card.html", "My Identity"]];
+  const currentFile = `${location.pathname.split("/").pop() || "dashboard.html"}`;
+  nav.innerHTML = links.map(([href, label]) => `<a href="${href}" class="${href === currentFile ? "active" : ""}">${label}</a>`).join("");
+  const logo = document.querySelector(".sidebar .logo");
+  if (logo) logo.href = getRoleHomePage(user);
+}
+
+function showAccessRestrictionMessage() {
+  const message = sessionStorage.getItem("accessRestrictedMessage");
+  if (!message) return;
+  sessionStorage.removeItem("accessRestrictedMessage");
+  showPageError(message);
+}
+
 function initAuth() {
   db?.auth.getSession().then(({ data }) => {
-    if (data.session?.user) window.location.href = "dashboard.html";
+    if (data.session?.user) redirectToRoleHome(data.session.user);
   });
 
   document.querySelectorAll("[data-auth-tab]").forEach((btn) => {
@@ -85,7 +137,8 @@ async function login(event) {
     password: $("loginPassword").value
   });
   if (error) return setMessage("authMessage", error.message, "error");
-  window.location.href = "dashboard.html";
+  const user = await getCurrentUser();
+  redirectToRoleHome(user);
 }
 
 async function register(event) {
@@ -105,7 +158,8 @@ async function register(event) {
     if (data.user) await ensureUserCard(data.user, fullName);
     const { error: loginError } = await db.auth.signInWithPassword({ email, password });
     if (loginError) return setMessage("authMessage", "Account created. Disable email confirmation in Supabase Auth.", "error");
-    window.location.href = "dashboard.html";
+    const user = await getCurrentUser();
+    redirectToRoleHome(user);
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");
   }

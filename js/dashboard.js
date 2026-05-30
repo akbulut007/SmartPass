@@ -61,7 +61,7 @@ async function loadUsersTable() {
       <td>${escapeHtml(card.full_name)}</td>
       <td>${escapeHtml(card.email)}</td>
       <td>${escapeHtml(card.uid)}</td>
-      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "admin", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
+      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
       <td>${formatDate(card.created_at)}</td>
     </tr>`).join("") || `<tr><td colspan="6">No digital identities found.</td></tr>`;

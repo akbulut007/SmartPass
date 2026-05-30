@@ -13,11 +13,15 @@ async function init() {
 
   const user = await requireAuthentication();
   if (!user) return;
+  if (!enforceRoleAccess(user, page)) return;
+  renderRoleNavigation(user);
   setSessionInfo(user);
+  showAccessRestrictionMessage();
 
   if (page === "dashboard") return initDashboard();
   if (page === "my-card") return initMyIdentity(user);
   if (page === "users") return initUsers();
   if (page === "logs") return initLogs();
   if (page === "reports") return initReports();
+  if (page === "security") return;
 }
