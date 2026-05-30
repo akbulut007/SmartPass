@@ -145,6 +145,17 @@ async function userLogin(event) {
     password: $("userLoginPassword").value
   });
   if (error) return setMessage("authMessage", error.message, "error");
+  try {
+    const user = await getCurrentUser();
+    const card = await ensureUserCard(user);
+    if (card?.status === "blocked") {
+      await db.auth.signOut();
+      return setMessage("authMessage", "Your account has been blocked by administrator.", "error");
+    }
+  } catch (error) {
+    await db.auth.signOut();
+    return setMessage("authMessage", readableDbError(error), "error");
+  }
   window.location.href = "my-card.html";
 }
 
