@@ -68,7 +68,7 @@ async function simulateDesktopDecision(result) {
     const updatedSession = await updateApprovalSession(currentApprovalSession.id, update);
     if (updatedSession?.status !== result) throw new Error("Database update failed.");
     currentApprovalSession = updatedSession;
-    await insertAccessLog(updatedSession, currentApprovalCard, result);
+    await insertAccessLog(updatedSession, currentApprovalCard, result, isApproved ? "simulate_approval" : "simulate_reject");
     stopTimers();
     if (isApproved) {
       setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Mobile verification completed");
@@ -153,7 +153,7 @@ async function expireSession(session) {
     .eq("id", session.id)
     .eq("status", "waiting");
   if (error) throw error;
-  await insertAccessLog(session, null, "expired");
+  await insertAccessLog(session, null, "expired", "qr_approval_expired");
 }
 
 function setApprovalState(state, titleText, detailText, subdetailText = "") {
@@ -240,7 +240,7 @@ async function completeMobileSession(sessionId, result) {
     };
     const updatedSession = await updateApprovalSession(sessionId, update);
     if (updatedSession?.status !== result) throw new Error("Database update failed.");
-    await insertAccessLog(updatedSession, card, result);
+    await insertAccessLog(updatedSession, card, result, result === "approved" ? "qr_approval_success" : "qr_approval_rejected");
     if (result === "approved") {
       setMobileApprovalState("approved", "ACCESS CONFIRMED", "The desktop screen will turn green within 2 seconds.", "OK");
     } else {

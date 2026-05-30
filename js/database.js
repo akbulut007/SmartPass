@@ -120,17 +120,54 @@ async function fetchLogs() {
   return getLogs();
 }
 
-async function insertAccessLog(session, card, result) {
+async function insertAccessLog(session, card, result, eventType = DEFAULT_LOCATION) {
   const row = {
-    uid: session.uid,
-    card_uid: session.uid,
-    email: card?.email || null,
+    uid: session?.uid || card?.uid || "-",
+    card_uid: session?.uid || card?.uid || "-",
+    email: card?.email || "-",
     result,
     device: getDeviceLabel(),
-    location: DEFAULT_LOCATION
+    location: eventType
   };
   const { error } = await db.from("access_logs").insert(row);
   if (error) throw error;
+}
+
+function resultForEvent(eventType) {
+  if (eventType.includes("failed") || eventType.includes("rejected") || eventType.includes("blocked") || eventType.includes("reject")) return "rejected";
+  if (eventType.includes("waiting")) return "expired";
+  return "approved";
+}
+
+async function logActivity(eventType, { email = "-", uid = "-", result, device, location } = {}) {
+  if (!db) return;
+  const row = {
+    uid: uid || "-",
+    card_uid: uid || "-",
+    email: email || "-",
+    result: result || resultForEvent(eventType),
+    device: device || getDeviceLabel(),
+    location: location || eventType || "-"
+  };
+  try {
+    await db.from("access_logs").insert(row);
+  } catch (error) {
+    console.warn("[SmartPass] Activity log failed", error);
+  }
+}
+
+async function logAuthActivity(eventType, userOrEmail, extra = {}) {
+  const email = typeof userOrEmail === "string" ? userOrEmail : userOrEmail?.email;
+  let uid = extra.uid || "-";
+  if (userOrEmail && typeof userOrEmail !== "string") {
+    try {
+      const card = await getUserCard(userOrEmail);
+      uid = card?.uid || uid;
+    } catch (error) {
+      console.warn("[SmartPass] Activity card lookup failed", error);
+    }
+  }
+  await logActivity(eventType, { email: email || "-", uid, ...extra });
 }
 
 async function updateUserCardField(cardId, field, value) {

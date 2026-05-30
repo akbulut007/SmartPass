@@ -11,6 +11,12 @@ function bindLogout() {
 }
 
 async function logout() {
+  try {
+    const user = await getCurrentUser();
+    await logAuthActivity("logout", user);
+  } catch (error) {
+    console.warn("[SmartPass] Logout activity log failed", error);
+  }
   stopTimers();
   if (db) await db.auth.signOut();
   window.location.href = "user-login.html";
@@ -133,25 +139,39 @@ function showAuthRedirectMessage() {
 async function userLogin(event) {
   event.preventDefault();
   const code = $("organizationAccessCode")?.value.trim() || "";
-  if (!code) return setMessage("authMessage", "Please enter organization access code.", "error");
-  if (code !== ORGANIZATION_ACCESS_CODE) return setMessage("authMessage", "Invalid organization access code.", "error");
-  if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
   const email = $("userLoginEmail").value.trim().toLowerCase();
-  if (email === ADMIN_EMAIL) return setMessage("authMessage", "Please use Admin Login.", "error");
+  if (!code) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", "Please enter organization access code.", "error");
+  }
+  if (code !== ORGANIZATION_ACCESS_CODE) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", "Invalid organization access code.", "error");
+  }
+  if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+  if (email === ADMIN_EMAIL) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", "Please use Admin Login.", "error");
+  }
 
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({
     email,
     password: $("userLoginPassword").value
   });
-  if (error) return setMessage("authMessage", error.message, "error");
+  if (error) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", error.message, "error");
+  }
   try {
     const user = await getCurrentUser();
     const card = await ensureUserCard(user);
     if (card?.status === "blocked") {
+      await logActivity("blocked_user_login_attempt", { email: user.email, uid: card.uid, location: "blocked_user_login_attempt" });
       await db.auth.signOut();
       return setMessage("authMessage", "Your account has been blocked by administrator.", "error");
     }
+    await logActivity("user_login_success", { email: user.email, uid: card.uid, location: "user_login_success" });
   } catch (error) {
     await db.auth.signOut();
     return setMessage("authMessage", readableDbError(error), "error");
@@ -163,7 +183,10 @@ async function adminLogin(event) {
   event.preventDefault();
   const email = $("adminLoginEmail").value.trim().toLowerCase();
   const code = $("adminAccessCode")?.value.trim() || "";
-  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) return setMessage("authMessage", "Access denied", "error");
+  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Access denied", "error");
+  }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
   setMessage("authMessage", "Signing in...");
@@ -171,12 +194,17 @@ async function adminLogin(event) {
     email,
     password: $("adminLoginPassword").value
   });
-  if (error) return setMessage("authMessage", "Access denied", "error");
+  if (error) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Access denied", "error");
+  }
   const user = await getCurrentUser();
   if (!isAdminUser(user)) {
+    await logAuthActivity("admin_login_failed", user, { location: "admin_login_failed" });
     await db.auth.signOut();
     return setMessage("authMessage", "Access denied", "error");
   }
+  await logAuthActivity("admin_login_success", user, { location: "admin_login_success" });
   window.location.href = "dashboard.html";
 }
 
@@ -203,6 +231,7 @@ async function register(event) {
     if (error) return setMessage("authMessage", error.message, "error");
     const sessionUser = await getCurrentUser();
     if (data.user && sessionUser) await ensureUserCard(sessionUser, fullName);
+    await logActivity("user_register_success", { email, location: "user_register_success" });
     if (sessionUser) await db.auth.signOut();
     sessionStorage.setItem("authMessage", "Registration successful. Please sign in.");
     window.location.href = "user-login.html";
