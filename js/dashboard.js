@@ -46,56 +46,43 @@ function renderRecentApprovals(logs) {
 }
 
 function initUsers() {
-  $("generateUidBtn")?.addEventListener("click", () => $("newUid").value = generateUid());
   $("refreshUsersBtn")?.addEventListener("click", loadUsersTable);
   $("usersTable")?.addEventListener("change", updateCardFromTable);
-  if ($("newUid")) $("newUid").value = generateUid();
-  $("addUserForm")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const record = {
-      user_id: null,
-      full_name: $("newFullName").value.trim(),
-      email: $("newEmail").value.trim(),
-      uid: $("newUid").value.trim(),
-      role: $("newRole").value,
-      status: $("newStatus").value
-    };
-    try {
-      await createStandaloneUserCard(record);
-    } catch (error) {
-      return setMessage("userFormMessage", readableDbError(error), "error");
-    }
-    event.target.reset();
-    $("newUid").value = generateUid();
-    setMessage("userFormMessage", "Digital identity saved.");
-    loadUsersTable();
-  });
   loadUsersTable();
 }
 
 async function loadUsersTable() {
+  setMessage("userFormMessage", "Loading registered identities...");
   const cards = await safeDataLoad(fetchCards, []);
   $("usersTable").innerHTML = cards.map((card) => `
     <tr>
       <td>${escapeHtml(card.full_name)}</td>
       <td>${escapeHtml(card.email)}</td>
       <td>${escapeHtml(card.uid)}</td>
-      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "employee", "admin", "guest"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
-      <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked", "expired"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
+      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "admin", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
+      <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
       <td>${formatDate(card.created_at)}</td>
     </tr>`).join("") || `<tr><td colspan="6">No digital identities found.</td></tr>`;
+  setMessage("userFormMessage", cards.length ? `${cards.length} registered identities loaded.` : "No registered identities found.");
 }
 
 async function updateCardFromTable(event) {
   const select = event.target.closest("[data-card-id]");
   if (!select) return;
   const { cardId, field } = select.dataset;
+  select.disabled = true;
+  setMessage("userFormMessage", "Updating identity...");
   try {
     await updateUserCardField(cardId, field, select.value);
   } catch (error) {
+    select.disabled = false;
     return showPageError(readableDbError(error));
   }
   select.className = `table-select ${select.value}`;
+  select.disabled = false;
+  setMessage("userFormMessage", "Identity updated successfully.");
+  await loadUsersTable();
+  setMessage("userFormMessage", "Identity updated successfully.");
 }
 
 function countStatuses(sessions) {
@@ -105,4 +92,3 @@ function countStatuses(sessions) {
     return acc;
   }, { waiting: 0, approved: 0, rejected: 0, expired: 0 });
 }
-

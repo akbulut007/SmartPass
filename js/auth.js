@@ -1,3 +1,5 @@
+const ORGANIZATION_ACCESS_CODE = "5545";
+
 function bindLogout() {
   const btn = $("logoutBtn");
   if (!btn) return;
@@ -68,6 +70,10 @@ function initLoginPage() {
 async function login(event) {
   event.preventDefault();
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+  const code = $("organizationAccessCode")?.value.trim() || "";
+  if (!code) return setMessage("authMessage", "Please enter organization access code.", "error");
+  if (code !== ORGANIZATION_ACCESS_CODE) return setMessage("authMessage", "Invalid organization access code.", "error");
+
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({
     email: $("loginEmail").value.trim(),
@@ -81,18 +87,21 @@ async function register(event) {
   event.preventDefault();
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
   setMessage("authMessage", "Creating digital identity...");
-  const fullName = $("signupName").value.trim();
-  const email = $("signupEmail").value.trim();
-  const password = $("signupPassword").value;
-  const { data, error } = await db.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: fullName } }
-  });
-  if (error) return setMessage("authMessage", error.message, "error");
-  if (data.user) await ensureUserCard(data.user, fullName);
-  const { error: loginError } = await db.auth.signInWithPassword({ email, password });
-  if (loginError) return setMessage("authMessage", "Account created. Disable email confirmation in Supabase Auth.", "error");
-  window.location.href = "dashboard.html";
+  try {
+    const fullName = $("signupName").value.trim();
+    const email = $("signupEmail").value.trim();
+    const password = $("signupPassword").value;
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName } }
+    });
+    if (error) return setMessage("authMessage", error.message, "error");
+    if (data.user) await ensureUserCard(data.user, fullName);
+    const { error: loginError } = await db.auth.signInWithPassword({ email, password });
+    if (loginError) return setMessage("authMessage", "Account created. Disable email confirmation in Supabase Auth.", "error");
+    window.location.href = "dashboard.html";
+  } catch (error) {
+    setMessage("authMessage", readableDbError(error), "error");
+  }
 }
-

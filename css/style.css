@@ -131,6 +131,13 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 .auth-form h2, .glass-panel h2 { margin: 0; }
 .auth-form p, .glass-panel p { color: var(--muted); line-height: 1.65; }
 label { display: grid; gap: 8px; color: #cfe8ef; font-weight: 700; }
+.helper-text { color: var(--muted); font-size: .86rem; line-height: 1.45; font-weight: 500; }
+.code-input {
+  max-width: 150px;
+  letter-spacing: .28em;
+  text-align: center;
+  font-weight: 900;
+}
 input, select {
   width: 100%;
   background: rgba(4, 12, 18, 0.76);
@@ -190,6 +197,7 @@ h1 { margin: 0; font-size: 42px; line-height: 1.1; }
 .metric-card.waiting strong { color: var(--amber); }
 .metric-card.expired strong { color: var(--muted); }
 .dashboard-grid, .card-layout, .management-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+.identity-management-grid { grid-template-columns: 1fr; }
 .glass-panel { padding: 24px; }
 .section-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .section-title a { color: var(--cyan); font-weight: 800; }
@@ -555,7 +563,6 @@ td { color: #d6e9ef; }
   z-index: 99;
 }
 
-.form-message:empty:before,
 .latest-auth:empty:before {
   content: "";
   display: inline-block;
