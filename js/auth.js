@@ -223,15 +223,35 @@ async function register(event) {
 
   setMessage("authMessage", "Creating user account...");
   try {
-    const { data, error } = await db.auth.signUp({
+    const supabaseClient = db;
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } }
     });
+
     if (error) return setMessage("authMessage", error.message, "error");
-    if (!data.user) throw new Error("Registration succeeded, but no user record was returned.");
-    const card = await ensurePublicCardForRegisteredUser(data.user, fullName);
-    await logActivity("user_register_success", { email, uid: card?.uid, location: "user_register_success" });
+
+    const user = data.user;
+    if (!user) return setMessage("authMessage", "Registration failed. User record was not returned.", "error");
+
+    const { error: insertError } = await supabaseClient.from("cards").insert({
+      user_id: user.id,
+      email: email,
+      full_name: fullName,
+      uid: generateUid(),
+      role: "student",
+      status: "active"
+    });
+
+    if (insertError) {
+      console.error(insertError);
+      const sessionUser = await getCurrentUser();
+      if (sessionUser) await db.auth.signOut();
+      return setMessage("authMessage", insertError.message, "error");
+    }
+
+    await logActivity("user_register_success", { email, location: "user_register_success" });
     const sessionUser = await getCurrentUser();
     if (sessionUser) await db.auth.signOut();
     sessionStorage.setItem("authMessage", "Registration successful. Please login.");
