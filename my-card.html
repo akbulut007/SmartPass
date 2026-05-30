@@ -57,28 +57,42 @@
       </article>
 
       <article id="approvalPanel" class="approval-panel glass-panel waiting">
-        <div class="section-title">
+        <div class="approval-header">
           <h2>Approval Session</h2>
-          <span class="status-dot warning"></span>
+          <span id="approvalStatusBadge" class="approval-status-badge waiting">Waiting</span>
         </div>
-        <img id="qrImage" class="qr-image" alt="QR approval code">
-        <button id="approvalOpenLink" class="primary-btn approval-open-link" type="button" hidden>Open approval page</button>
+
+        <div class="qr-stage">
+          <img id="qrImage" class="qr-image" alt="QR approval code" title="Open approval page">
+          <p class="qr-instruction">Scan or click the QR code to approve</p>
+          <button id="approvalOpenLink" class="ghost-btn approval-open-link" type="button" hidden>Open</button>
+        </div>
+
         <div class="simulation-actions">
           <button id="simulateApproveBtn" class="primary-btn" type="button">Simulate Mobile Approval</button>
           <button id="simulateRejectBtn" class="danger-btn" type="button">Simulate Reject</button>
         </div>
+
         <div id="approvalIcon" class="approval-icon waiting">...</div>
-        <h2 id="approvalStatus">WAITING FOR MOBILE APPROVAL</h2>
-        <p id="approvalDetail">Scan this QR code with your phone camera and approve the login request.</p>
+        <h2 id="approvalStatus">WAITING FOR APPROVAL</h2>
+        <p id="approvalDetail">Scan or click the QR code to continue.</p>
         <p id="approvalSubdetail" class="approval-subdetail"></p>
-        <p class="local-demo-note">QR approval opens the public Netlify approval page: https://nfc11.netlify.app</p>
-        <div class="session-meta">
-          <div><span>Session ID</span><strong id="approvalSessionId">-</strong></div>
-          <div><span>Created</span><strong id="approvalCreatedAt">-</strong></div>
-          <div><span>Timer</span><strong id="sessionCountdown">Session expires in: --:--</strong></div>
-          <div><span>Device</span><strong id="approvalDevice">Desktop</strong></div>
-        </div>
-        <p id="qrLink" class="qr-link"></p>
+
+        <details class="session-details">
+          <summary>Session Details</summary>
+          <div class="session-meta">
+            <div><span>Session ID</span><strong id="approvalSessionId">-</strong></div>
+            <div><span>Created</span><strong id="approvalCreatedAt">-</strong></div>
+            <div><span>Timer</span><strong id="sessionCountdown">Session expires in: --:--</strong></div>
+            <div><span>Device</span><strong id="approvalDevice">Desktop</strong></div>
+            <div><span>Netlify URL</span><strong>https://nfc11.netlify.app</strong></div>
+            <div><span>Polling</span><strong>Supabase every 1 second</strong></div>
+          </div>
+          <div class="approval-url-detail">
+            <span>Approval URL</span>
+            <p id="qrLink" class="qr-link"></p>
+          </div>
+        </details>
       </article>
     </section>
 

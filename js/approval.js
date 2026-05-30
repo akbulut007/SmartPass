@@ -18,7 +18,7 @@ async function loadMyCard(user) {
     currentApprovalSession = session;
     renderApprovalQr(session, card);
     bindSimulationControls();
-    setApprovalState("waiting", "WAITING FOR MOBILE APPROVAL", "Scan the QR code with your phone and approve or reject this request.", "");
+    setApprovalState("waiting", "WAITING FOR APPROVAL", "", "");
     startCountdown(session);
     startApprovalPolling(session.id);
   } catch (error) {
@@ -41,6 +41,13 @@ function bindSimulationControls() {
   $("simulateApproveBtn")?.addEventListener("click", () => simulateDesktopDecision("approved"));
   $("simulateRejectBtn")?.addEventListener("click", () => simulateDesktopDecision("rejected"));
   $("approvalOpenLink")?.addEventListener("click", openApprovalPage);
+  $("qrImage")?.addEventListener("click", openApprovalPage);
+  $("qrImage")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      openApprovalPage();
+    }
+  });
 }
 
 async function simulateDesktopDecision(result) {
@@ -65,7 +72,7 @@ async function simulateDesktopDecision(result) {
     if (isApproved) {
       setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Mobile verification completed");
     } else {
-      setApprovalState("rejected", "ACCESS DENIED", "Mobile verification rejected", "");
+      setApprovalState("rejected", "ACCESS DENIED", "", "");
     }
     console.log("[SmartPass] Desktop simulation completed", { sessionId: updatedSession.id, result });
   } catch (error) {
@@ -98,7 +105,7 @@ async function checkApprovalStatus(sessionId) {
     console.log("[SmartPass] Desktop poll", { sessionId, status: session.status });
     if (session.status === "waiting" && isExpired(session)) {
       await expireSession(session);
-      setApprovalState("expired", "SESSION EXPIRED", "Mobile verification window has closed.", "");
+      setApprovalState("expired", "SESSION EXPIRED", "", "");
       stopTimers();
       return;
     }
@@ -108,17 +115,17 @@ async function checkApprovalStatus(sessionId) {
       stopTimers();
     } else if (session.status === "rejected") {
       currentApprovalSession = session;
-      setApprovalState("rejected", "ACCESS DENIED", "Mobile verification rejected", "");
+      setApprovalState("rejected", "ACCESS DENIED", "", "");
       stopTimers();
     } else if (session.status === "expired") {
-      setApprovalState("expired", "SESSION EXPIRED", "Mobile verification window has closed.", "");
+      setApprovalState("expired", "SESSION EXPIRED", "", "");
       stopTimers();
     } else {
-      setApprovalState("waiting", "WAITING FOR MOBILE APPROVAL", "Desktop is polling Supabase every 1 second.", "");
+      setApprovalState("waiting", "WAITING FOR APPROVAL", "", "");
     }
   } catch (error) {
     const message = readableDbError(error);
-    setApprovalState("waiting", "WAITING FOR MOBILE APPROVAL", message, "");
+    setApprovalState("waiting", "WAITING FOR APPROVAL", message, "");
     showPageError(message);
   }
 }
@@ -148,6 +155,10 @@ async function expireSession(session) {
 function setApprovalState(state, titleText, detailText, subdetailText = "") {
   const panel = $("approvalPanel");
   if (panel) panel.className = `approval-panel glass-panel ${state}`;
+  if ($("approvalStatusBadge")) {
+    $("approvalStatusBadge").className = `approval-status-badge ${state}`;
+    $("approvalStatusBadge").textContent = title(state);
+  }
   if ($("approvalIcon")) {
     $("approvalIcon").className = `approval-icon ${state}`;
     $("approvalIcon").textContent = state === "approved" ? "OK" : state === "rejected" ? "NO" : state === "expired" ? "--" : "...";
@@ -276,6 +287,7 @@ function setCardLoadingState(text) {
   $("cardStatusDetail").textContent = "-";
   $("qrLink").textContent = "QR will appear after the approval session is created.";
   $("qrImage").hidden = true;
+  $("qrImage").removeAttribute("tabindex");
   if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;
   if ($("sessionCountdown")) $("sessionCountdown").textContent = "Session expires in: --:--";
 }
@@ -289,6 +301,6 @@ function setCardErrorState(message) {
   $("cardStatusDetail").textContent = "-";
   $("qrLink").textContent = "QR cannot be generated until the identity record is available.";
   $("qrImage").hidden = true;
+  $("qrImage").removeAttribute("tabindex");
   if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;
 }
-
