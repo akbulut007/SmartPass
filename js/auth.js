@@ -13,7 +13,7 @@ function bindLogout() {
 async function logout() {
   stopTimers();
   if (db) await db.auth.signOut();
-  window.location.href = "index.html";
+  window.location.href = "user-login.html";
 }
 
 async function getCurrentUser() {
@@ -31,7 +31,7 @@ async function requireSession() {
   try {
     const user = await getCurrentUser();
     if (!user) {
-      window.location.href = "index.html";
+      window.location.href = "user-login.html";
       return null;
     }
     return user;
