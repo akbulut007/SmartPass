@@ -95,7 +95,7 @@ function readableDbError(error) {
   const raw = error?.message || String(error || "Unknown error");
   if (raw.includes("relation") && raw.includes("does not exist")) return "Supabase table is missing. Run supabase-schema.sql in the Supabase SQL Editor.";
   if (raw.includes("row-level security") || raw.includes("violates row-level security")) return "Supabase RLS policy blocked this operation. Run the policies in supabase-schema.sql.";
-  if (raw.includes("permission denied")) return "Supabase permission denied. Check users_cards, approval_sessions, and access_logs policies.";
+  if (raw.includes("permission denied")) return "Supabase permission denied. Check cards, approval_sessions, and access_logs policies.";
   return raw;
 }
 

@@ -229,11 +229,12 @@ async function register(event) {
       options: { data: { full_name: fullName } }
     });
     if (error) return setMessage("authMessage", error.message, "error");
+    if (!data.user) throw new Error("Registration succeeded, but no user record was returned.");
+    const card = await ensurePublicCardForRegisteredUser(data.user, fullName);
+    await logActivity("user_register_success", { email, uid: card?.uid, location: "user_register_success" });
     const sessionUser = await getCurrentUser();
-    if (data.user && sessionUser) await ensureUserCard(sessionUser, fullName);
-    await logActivity("user_register_success", { email, location: "user_register_success" });
     if (sessionUser) await db.auth.signOut();
-    sessionStorage.setItem("authMessage", "Registration successful. Please sign in.");
+    sessionStorage.setItem("authMessage", "Registration successful. Please login.");
     window.location.href = "user-login.html";
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");

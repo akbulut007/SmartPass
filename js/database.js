@@ -1,6 +1,6 @@
 async function getUserCard(user) {
   const { data, error } = await db
-    .from("users_cards")
+    .from("cards")
     .select("id,user_id,email,full_name,uid,role,status,created_at")
     .eq("user_id", user.id)
     .maybeSingle();
@@ -19,7 +19,7 @@ async function createUserCard(user, suppliedName) {
     status: "active"
   };
   const { data, error } = await db
-    .from("users_cards")
+    .from("cards")
     .insert(record)
     .select("id,user_id,email,full_name,uid,role,status,created_at")
     .single();
@@ -31,6 +31,44 @@ async function ensureUserCard(user, suppliedName) {
   const existing = await getUserCard(user);
   if (existing) return existing;
   return createUserCard(user, suppliedName);
+}
+
+async function getPublicCardByUserOrEmail(userId, email) {
+  const { data: byUserId, error: userError } = await db
+    .from("cards")
+    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .eq("user_id", userId)
+    .limit(1);
+  if (userError) throw userError;
+  if (byUserId?.length) return byUserId[0];
+
+  const { data: byEmail, error: emailError } = await db
+    .from("cards")
+    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .eq("email", email)
+    .limit(1);
+  if (emailError) throw emailError;
+  return byEmail?.[0] || null;
+}
+
+async function ensurePublicCardForRegisteredUser(user, fullName) {
+  const existing = await getPublicCardByUserOrEmail(user.id, user.email);
+  if (existing) return existing;
+  const record = {
+    user_id: user.id,
+    email: user.email,
+    full_name: fullName,
+    uid: generateUid(),
+    role: "student",
+    status: "active"
+  };
+  const { data, error } = await db
+    .from("cards")
+    .insert(record)
+    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 async function createApprovalSession(card) {
@@ -79,7 +117,7 @@ async function fetchApprovalSession(sessionId) {
 
 async function fetchCardByUid(uid) {
   const { data, error } = await db
-    .from("users_cards")
+    .from("cards")
     .select("id,user_id,email,full_name,uid,role,status,created_at")
     .eq("uid", uid)
     .maybeSingle();
@@ -89,7 +127,7 @@ async function fetchCardByUid(uid) {
 
 async function fetchCards() {
   const { data, error } = await db
-    .from("users_cards")
+    .from("cards")
     .select("id,user_id,email,full_name,uid,role,status,created_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
@@ -171,11 +209,11 @@ async function logAuthActivity(eventType, userOrEmail, extra = {}) {
 }
 
 async function updateUserCardField(cardId, field, value) {
-  const { error } = await db.from("users_cards").update({ [field]: value }).eq("id", cardId);
+  const { error } = await db.from("cards").update({ [field]: value }).eq("id", cardId);
   if (error) throw error;
 }
 
 async function createStandaloneUserCard(record) {
-  const { error } = await db.from("users_cards").insert(record);
+  const { error } = await db.from("cards").insert(record);
   if (error) throw error;
 }
