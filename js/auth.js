@@ -152,7 +152,7 @@ async function adminLogin(event) {
   event.preventDefault();
   const email = $("adminLoginEmail").value.trim().toLowerCase();
   const code = $("adminAccessCode")?.value.trim() || "";
-  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) return setMessage("authMessage", "Access denied.", "error");
+  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) return setMessage("authMessage", "Access denied", "error");
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
   setMessage("authMessage", "Signing in...");
@@ -160,11 +160,11 @@ async function adminLogin(event) {
     email,
     password: $("adminLoginPassword").value
   });
-  if (error) return setMessage("authMessage", "Access denied.", "error");
+  if (error) return setMessage("authMessage", "Access denied", "error");
   const user = await getCurrentUser();
   if (!isAdminUser(user)) {
     await db.auth.signOut();
-    return setMessage("authMessage", "Access denied.", "error");
+    return setMessage("authMessage", "Access denied", "error");
   }
   window.location.href = "dashboard.html";
 }
@@ -193,7 +193,7 @@ async function register(event) {
     const sessionUser = await getCurrentUser();
     if (data.user && sessionUser) await ensureUserCard(sessionUser, fullName);
     if (sessionUser) await db.auth.signOut();
-    sessionStorage.setItem("authMessage", "Registration successful. Please sign in using your credentials.");
+    sessionStorage.setItem("authMessage", "Registration successful. Please sign in.");
     window.location.href = "user-login.html";
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");

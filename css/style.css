@@ -154,6 +154,27 @@ button { cursor: pointer; }
 }
 .auth-visual h1 { font-size: 56px; line-height: 1.02; margin: 34px 0 20px; max-width: 620px; }
 .auth-visual p { color: var(--muted); font-size: 18px; line-height: 1.7; max-width: 560px; }
+.admin-portal-link {
+  display: inline-grid;
+  place-items: center;
+  width: fit-content;
+  min-height: 40px;
+  margin-top: 10px;
+  padding: 10px 16px;
+  border: 1px solid rgba(53, 231, 255, 0.28);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.055);
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.admin-portal-link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(53, 231, 255, 0.44);
+  background: rgba(53, 231, 255, 0.1);
+}
 .signal-grid { position: absolute; left: 56px; bottom: 56px; display: grid; grid-template-columns: repeat(4, 72px); gap: 14px; }
 .signal-grid span { height: 72px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,0.03); }
 
