@@ -26,16 +26,13 @@
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
   <main class="app-main">
-    <header class="page-header"><div><p class="eyebrow">Architecture Notes</p><h1>QR-Based Login Approval and Digital Access Verification System</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Security Status</h1></div><div id="sessionInfo" class="session-pill"></div></header>
     <section class="security-grid">
-      <article class="glass-panel"><h2>Supabase Auth</h2><p>User accounts and desktop sessions are managed with Supabase Auth. Protected pages verify the active authenticated session before loading identity records.</p></article>
-      <article class="glass-panel"><h2>QR Session Verification</h2><p>Each desktop request creates a temporary approval session. The QR contains only a public HTTPS approve.html link with a session ID.</p></article>
-      <article class="glass-panel"><h2>Two-Device Approval</h2><p>The desktop waits while the phone approves or rejects the session. The desktop uses 2-second polling to react to cloud database changes.</p></article>
-      <article class="glass-panel"><h2>Access Logs</h2><p>Approved, rejected, and expired outcomes are stored with UID, email, device, location, and timestamp for audit and thesis demonstration.</p></article>
-      <article class="glass-panel"><h2>Cloud Database</h2><p>Digital identities, approval sessions, and access logs are stored in Supabase tables with row-level security policies suitable for a public GitHub Pages frontend.</p></article>
-      <article class="glass-panel"><h2>Session Expiration</h2><p>Each approval request expires after 2 minutes. Expired sessions are marked in the database and rendered as a dark gray desktop state.</p></article>
-      <article class="glass-panel"><h2>Role Concept</h2><p>User roles remain attached to digital identities for future role-based access rules, such as student, employee, guest, and administrator access levels.</p></article>
-      <article class="glass-panel"><h2>Prototype Scope</h2><p>Inspired by NFC-style access systems, this prototype uses QR-based approval due to hardware limitations while preserving enterprise access-control behavior.</p></article>
+      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Organization Code</h2><p>Enabled</p></article>
+      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Admin Portal</h2><p>Protected</p></article>
+      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>QR Approval</h2><p>Enabled</p></article>
+      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Blocked Users</h2><p>Protected</p></article>
+      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Supabase Auth</h2><p>Connected</p></article>
     </section>
   </main>
 </body>

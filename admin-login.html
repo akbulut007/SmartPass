@@ -22,7 +22,7 @@
     <section class="auth-visual">
       <div class="brand-mark">QR</div>
       <h1>Administrator Access</h1>
-      <p>Administrative entry is restricted by account email, password authentication, and a separate admin access code.</p>
+      <p>Protected access for SmartPass operators.</p>
       <div class="signal-grid">
         <span></span><span></span><span></span><span></span>
       </div>
@@ -31,7 +31,7 @@
     <section class="auth-card glass-panel">
       <form id="adminLoginForm" class="auth-form active">
         <h2>Admin Login</h2>
-        <p>Access dashboard, users, logs, reports, and security controls.</p>
+        <p>Sign in to manage access.</p>
         <label>Email
           <input type="email" id="adminLoginEmail" required autocomplete="email" placeholder="admin@smartpass.local">
         </label>
@@ -40,9 +40,7 @@
         </label>
         <label>Admin Access Code
           <input type="password" id="adminAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter admin code">
-          <span class="helper-text">Administrator access is restricted.</span>
         </label>
-        <p class="security-note">This platform uses multi-layer verification: email &amp; password, access code, and QR-based approval.</p>
         <button class="primary-btn" type="submit">Admin Login</button>
         <div class="auth-links">
           <a href="user-login.html">User login</a>

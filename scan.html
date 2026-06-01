@@ -21,10 +21,10 @@
   <main class="approve-shell">
     <section class="approve-panel glass-panel waiting">
       <div class="smartpass-logo">SmartPass</div>
-      <p class="eyebrow">QR Access Verification</p>
-      <h1>Approval Page Moved</h1>
-      <p id="legacyScanMessage">Redirecting to the secure approval page...</p>
-      <a id="legacyApproveLink" class="primary-btn approve-button" href="approve.html">Open approval page</a>
+      <p class="eyebrow">SmartPass</p>
+      <h1>Redirecting</h1>
+      <p id="legacyScanMessage">Opening approval...</p>
+      <a id="legacyApproveLink" class="primary-btn approve-button" href="approve.html">Open Approval</a>
     </section>
   </main>
   <script>
@@ -34,7 +34,7 @@
       : "approve.html";
     document.getElementById("legacyApproveLink").href = target;
     if (!session) {
-      document.getElementById("legacyScanMessage").textContent = "Missing session ID. Open the current QR link from My Identity.";
+      document.getElementById("legacyScanMessage").textContent = "Invalid approval request.";
     } else {
       window.location.replace(target);
     }

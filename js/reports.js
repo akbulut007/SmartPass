@@ -4,26 +4,25 @@ async function initReports() {
 }
 
 async function loadReports() {
-  const [cards, sessions] = await safeDataLoad(() => Promise.all([fetchCards(), fetchSessions()]), [[], []]);
-  renderReports(calculateReports(cards, sessions));
+  const [cards, sessions, logs] = await safeDataLoad(() => Promise.all([fetchCards(), fetchSessions(), fetchLogs()]), [[], [], []]);
+  renderReports(calculateReports(cards, sessions, logs));
 }
 
-function calculateReports(cards, sessions) {
+function calculateReports(cards, sessions, logs) {
   const counts = countStatuses(sessions);
   const active = cards.filter((card) => card.status === "active").length;
+  const blocked = cards.filter((card) => card.status === "blocked").length;
   const totalFinished = counts.approved + counts.rejected + counts.expired;
-  return { cards, counts, active, totalFinished };
+  return { cards, counts, active, blocked, logs, totalFinished };
 }
 
 function renderReports(report) {
-  const { cards, counts, active, totalFinished } = report;
+  const { cards, counts, blocked, logs, totalFinished } = report;
   setText("reportApproved", counts.approved);
   setText("reportRejected", counts.rejected);
-  setText("reportExpired", counts.expired);
-  setText("reportActive", active);
-  setText("reportGrantRate", totalFinished ? `${Math.round((counts.approved / totalFinished) * 100)}%` : "0%");
+  setText("reportBlocked", blocked);
+  setText("reportTotalLogs", logs.length);
   setBar("approvedBar", "approvedBarText", counts.approved, totalFinished || 1);
   setBar("rejectedBar", "rejectedBarText", counts.rejected, totalFinished || 1);
-  setBar("expiredBar", "expiredBarText", counts.expired, totalFinished || 1);
-  setBar("activeBar", "activeBarText", active, cards.length || 1);
+  setBar("blockedBar", "blockedBarText", blocked, cards.length || 1);
 }

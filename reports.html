@@ -26,20 +26,18 @@
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
   <main class="app-main">
-    <header class="page-header"><div><p class="eyebrow">Operational Analytics</p><h1>Reports</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Reports</h1></div><div id="sessionInfo" class="session-pill"></div></header>
     <section class="stats-grid">
-      <article class="metric-card granted"><p>Approved</p><strong id="reportApproved">0</strong><span>Confirmed sessions</span></article>
-      <article class="metric-card denied"><p>Rejected</p><strong id="reportRejected">0</strong><span>Rejected sessions</span></article>
-      <article class="metric-card expired"><p>Expired</p><strong id="reportExpired">0</strong><span>Timed-out sessions</span></article>
-      <article class="metric-card"><p>Active Users</p><strong id="reportActive">0</strong><span>Enabled identities</span></article>
-      <article class="metric-card granted"><p>Approval Rate</p><strong id="reportGrantRate">0%</strong><span>Approved vs finished sessions</span></article>
+      <article class="metric-card granted"><p>Approved</p><strong id="reportApproved">0</strong></article>
+      <article class="metric-card denied"><p>Rejected</p><strong id="reportRejected">0</strong></article>
+      <article class="metric-card denied"><p>Blocked Users</p><strong id="reportBlocked">0</strong></article>
+      <article class="metric-card"><p>Total Logs</p><strong id="reportTotalLogs">0</strong></article>
     </section>
     <section class="report-bars glass-panel">
       <h2>Access Distribution</h2>
       <div class="bar-row"><span>Approved</span><div><i id="approvedBar"></i></div><b id="approvedBarText">0</b></div>
       <div class="bar-row"><span>Rejected</span><div><i id="rejectedBar"></i></div><b id="rejectedBarText">0</b></div>
-      <div class="bar-row"><span>Expired</span><div><i id="expiredBar"></i></div><b id="expiredBarText">0</b></div>
-      <div class="bar-row"><span>Active</span><div><i id="activeBar"></i></div><b id="activeBarText">0</b></div>
+      <div class="bar-row"><span>Blocked</span><div><i id="blockedBar"></i></div><b id="blockedBarText">0</b></div>
     </section>
   </main>
 </body>

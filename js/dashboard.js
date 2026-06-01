@@ -8,6 +8,7 @@ async function loadDashboard() {
   const counts = countStatuses(sessions);
   setText("totalUsers", cards.length);
   setText("activeIdentities", cards.filter((card) => card.status === "active").length);
+  setText("blockedUsers", cards.filter((card) => card.status === "blocked").length);
   setText("pendingApprovals", counts.waiting);
   setText("approvedSessions", counts.approved);
   setText("rejectedSessions", counts.rejected);
@@ -15,18 +16,7 @@ async function loadDashboard() {
   setText("approvedLogins", counts.approved);
   setText("deniedLogins", counts.rejected);
   setText("activeSessions", counts.waiting);
-  renderLatestApproval(logs[0]);
-  renderRecentApprovals(logs.slice(0, 8));
-}
-
-function renderLatestApproval(latest) {
-  if (!$("latestAuth")) return;
-  $("latestAuth").innerHTML = latest ? `
-    <div class="event-card ${normalizeResult(latest.result)}">
-      <strong>${escapeHtml(String(latest.result).toUpperCase())}</strong>
-      <span>${escapeHtml(latest.email || "Unknown user")} via ${escapeHtml(latest.device || "Unknown device")}</span>
-      <small>${escapeHtml(latest.uid || latest.card_uid || "-")} - ${escapeHtml(latest.location || DEFAULT_LOCATION)} - ${formatDate(latest.created_at)}</small>
-    </div>` : "No approval logs yet.";
+  renderRecentApprovals(logs.slice(0, 5));
 }
 
 function renderRecentApprovals(logs) {
@@ -63,9 +53,8 @@ async function loadUsersTable() {
       <td>${escapeHtml(card.uid)}</td>
       <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
-      <td>${formatDate(card.created_at)}</td>
-    </tr>`).join("") || `<tr><td colspan="6">No digital identities found.</td></tr>`;
-  setMessage("userFormMessage", cards.length ? `${cards.length} registered identities loaded.` : "No registered identities found.");
+    </tr>`).join("") || `<tr><td colspan="5">No digital identities found.</td></tr>`;
+  setMessage("userFormMessage", cards.length ? `${cards.length} identities loaded.` : "No identities found.");
 }
 
 async function updateCardFromTable(event) {
@@ -82,9 +71,9 @@ async function updateCardFromTable(event) {
   }
   select.className = `table-select ${select.value}`;
   select.disabled = false;
-  setMessage("userFormMessage", "Identity updated successfully.");
+  setMessage("userFormMessage", "Identity updated.");
   await loadUsersTable();
-  setMessage("userFormMessage", "Identity updated successfully.");
+  setMessage("userFormMessage", "Identity updated.");
 }
 
 function countStatuses(sessions) {

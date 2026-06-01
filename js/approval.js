@@ -71,7 +71,7 @@ async function simulateDesktopDecision(result) {
     await insertAccessLog(updatedSession, currentApprovalCard, result, isApproved ? "simulate_approval" : "simulate_reject");
     stopTimers();
     if (isApproved) {
-      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Mobile verification completed");
+      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Verified");
     } else {
       setApprovalState("rejected", "ACCESS DENIED", "", "");
     }
@@ -114,7 +114,7 @@ async function checkApprovalStatus(sessionId) {
     }
     if (session.status === "approved") {
       currentApprovalSession = session;
-      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Mobile verification completed");
+      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Verified");
       stopTimers();
     } else if (session.status === "rejected") {
       currentApprovalSession = session;
@@ -139,7 +139,7 @@ function startCountdown(session) {
   if (countdownTimer) clearInterval(countdownTimer);
   const tick = () => {
     const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
-    if ($("sessionCountdown")) $("sessionCountdown").textContent = `Session expires in: ${formatDuration(remaining)}`;
+    if ($("sessionCountdown")) $("sessionCountdown").textContent = `Expires in: ${formatDuration(remaining)}`;
     if (remaining <= 0) clearInterval(countdownTimer);
   };
   tick();
@@ -180,8 +180,8 @@ function setApprovalState(state, titleText, detailText, subdetailText = "") {
 
 async function initMobileApproval() {
   const sessionId = new URLSearchParams(window.location.search).get("session");
-  if (!sessionId) return setMobileApprovalState("rejected", "Missing session", "The QR approval link does not include a session ID.", "!");
-  if (!db) return setMobileApprovalState("rejected", "Offline", "Supabase is not configured for this approval page.", "!");
+  if (!sessionId) return setMobileApprovalState("rejected", "Missing session", "Invalid approval request.", "!");
+  if (!db) return setMobileApprovalState("rejected", "Offline", "Service unavailable.", "!");
 
   $("mobileSessionId").textContent = sessionId;
   $("mobileApproveBtn")?.addEventListener("click", () => completeMobileSession(sessionId, "approved"));
@@ -194,7 +194,7 @@ async function loadMobileApprovalSession(sessionId) {
     const session = await fetchApprovalSession(sessionId);
     if (!session) {
       disableMobileButtons();
-      return setMobileApprovalState("rejected", "Session not found", "This approval session is invalid or no longer available.", "!");
+      return setMobileApprovalState("rejected", "Session not found", "Invalid or expired request.", "!");
     }
     $("mobileSessionStatus").textContent = title(normalizeResult(session.status));
     if (session.status === "waiting" && isExpired(session)) {
@@ -204,17 +204,17 @@ async function loadMobileApprovalSession(sessionId) {
     }
     if (session.status === "approved") {
       disableMobileButtons();
-      return setMobileApprovalState("approved", "ACCESS CONFIRMED", "This login request has already been approved.", "OK");
+      return setMobileApprovalState("approved", "ACCESS CONFIRMED", "Already approved.", "OK");
     }
     if (session.status === "rejected") {
       disableMobileButtons();
-      return setMobileApprovalState("rejected", "ACCESS DENIED", "This login request was rejected.", "NO");
+      return setMobileApprovalState("rejected", "ACCESS DENIED", "Request rejected.", "NO");
     }
     if (session.status === "expired") {
       disableMobileButtons();
       return setMobileApprovalState("expired", "SESSION EXPIRED", "This approval request has expired.", "--");
     }
-    setMobileApprovalState("waiting", "Waiting", "Approve or reject this secure login request.", "QR");
+    setMobileApprovalState("waiting", "Waiting", "Approve or reject this request.", "QR");
   } catch (error) {
     disableMobileButtons();
     setMobileApprovalState("rejected", "Load failed", readableDbError(error), "!");
@@ -223,7 +223,7 @@ async function loadMobileApprovalSession(sessionId) {
 
 async function completeMobileSession(sessionId, result) {
   disableMobileButtons();
-  setMobileApprovalState("waiting", "Confirming", "Updating the approval session in Supabase...", "...");
+  setMobileApprovalState("waiting", "Confirming", "Updating request...", "...");
   try {
     const session = await fetchApprovalSession(sessionId);
     if (!session) throw new Error("Approval session was not found.");
@@ -242,9 +242,9 @@ async function completeMobileSession(sessionId, result) {
     if (updatedSession?.status !== result) throw new Error("Database update failed.");
     await insertAccessLog(updatedSession, card, result, result === "approved" ? "qr_approval_success" : "qr_approval_rejected");
     if (result === "approved") {
-      setMobileApprovalState("approved", "ACCESS CONFIRMED", "The desktop screen will turn green within 2 seconds.", "OK");
+      setMobileApprovalState("approved", "ACCESS CONFIRMED", "Approved.", "OK");
     } else {
-      setMobileApprovalState("rejected", "ACCESS DENIED", "The desktop screen will show the rejected state within 2 seconds.", "NO");
+      setMobileApprovalState("rejected", "ACCESS DENIED", "Rejected.", "NO");
     }
   } catch (error) {
     enableMobileButtons();
@@ -284,11 +284,11 @@ function normalizeResult(result) {
 function setCardLoadingState(text) {
   $("cardStatus").textContent = text;
   $("cardName").textContent = "Loading...";
-  $("cardEmail").textContent = "Checking Supabase session and digital identity registry";
+  $("cardEmail").textContent = "Preparing identity";
   $("cardUid").textContent = "-";
   $("cardRole").textContent = "-";
   $("cardStatusDetail").textContent = "-";
-  $("qrLink").textContent = "QR will appear after the approval session is created.";
+  $("qrLink").textContent = "";
   $("qrImage").hidden = true;
   $("qrImage").removeAttribute("tabindex");
   if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;

@@ -21,8 +21,8 @@
   <main class="auth-shell compact-auth-shell">
     <section class="auth-visual">
       <div class="brand-mark">QR</div>
-      <h1>QR-Based Login Approval</h1>
-      <p>Sign in with your account credentials and organization code, then complete QR-based approval from your identity page.</p>
+      <h1>SmartPass Access</h1>
+      <p>Secure identity login for QR-based access control.</p>
       <a class="admin-portal-link" href="admin-login.html">Admin Portal</a>
       <div class="signal-grid">
         <span></span><span></span><span></span><span></span>
@@ -32,7 +32,7 @@
     <section class="auth-card glass-panel">
       <form id="userLoginForm" class="auth-form active">
         <h2>User Login</h2>
-        <p>Access your SmartPass digital identity.</p>
+        <p>Sign in to continue.</p>
         <label>Email
           <input type="email" id="userLoginEmail" required autocomplete="email" placeholder="student@university.edu">
         </label>
@@ -41,9 +41,7 @@
         </label>
         <label>Organization Access Code
           <input type="password" id="organizationAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter organization code">
-          <span class="helper-text">Access restricted to authorized users.</span>
         </label>
-        <p class="security-note">This platform uses multi-layer verification: email &amp; password, access code, and QR-based approval.</p>
         <button class="primary-btn" type="submit">Login</button>
         <div class="auth-links">
           <a href="register.html">Create user account</a>

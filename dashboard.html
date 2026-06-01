@@ -34,43 +34,36 @@
   <main class="app-main">
     <header class="page-header">
       <div>
-        <p class="eyebrow">QR-Based Login Approval</p>
-        <h1>Access Verification Dashboard</h1>
+        <p class="eyebrow">SmartPass</p>
+        <h1>Dashboard</h1>
       </div>
       <div id="sessionInfo" class="session-pill">Checking session...</div>
     </header>
 
     <section class="stats-grid dashboard-stats">
-      <article class="metric-card"><p>Total Users</p><strong id="totalUsers">0</strong><span>Registered digital identities</span></article>
-      <article class="metric-card"><p>Active Identities</p><strong id="activeIdentities">0</strong><span>Enabled SmartPass users</span></article>
-      <article class="metric-card waiting"><p>Pending Approvals</p><strong id="pendingApprovals">0</strong><span>Waiting for phone confirmation</span></article>
-      <article class="metric-card granted"><p>Approved Sessions</p><strong id="approvedSessions">0</strong><span>Successful mobile approvals</span></article>
-      <article class="metric-card denied"><p>Rejected Sessions</p><strong id="rejectedSessions">0</strong><span>Rejected mobile requests</span></article>
-      <article class="metric-card expired"><p>Expired Sessions</p><strong id="expiredSessions">0</strong><span>Timed-out approval windows</span></article>
+      <article class="metric-card"><p>Total Users</p><strong id="totalUsers">0</strong></article>
+      <article class="metric-card"><p>Active Users</p><strong id="activeIdentities">0</strong></article>
+      <article class="metric-card denied"><p>Blocked Users</p><strong id="blockedUsers">0</strong></article>
+      <article class="metric-card granted"><p>Approved Sessions</p><strong id="approvedSessions">0</strong></article>
+      <article class="metric-card denied"><p>Rejected Sessions</p><strong id="rejectedSessions">0</strong></article>
     </section>
 
     <section class="dashboard-grid">
       <article class="glass-panel wide-panel">
         <div class="section-title">
-          <h2>Latest Activity</h2>
+          <h2>Recent Activity</h2>
           <a href="logs.html">View logs</a>
         </div>
-        <div id="latestAuth" class="latest-auth">No approval logs yet.</div>
+        <div id="recentApprovals" class="recent-list"></div>
       </article>
       <article class="glass-panel">
         <div class="section-title"><h2>System Status</h2></div>
         <div class="status-stack">
-          <div><span class="status-dot online"></span> Supabase Auth <b>Online</b></div>
-          <div><span class="status-dot online"></span> Cloud Database <b>Ready</b></div>
-          <div><span class="status-dot warning"></span> Session Expiration <b>2 min</b></div>
-          <div><span class="status-dot online"></span> Polling Interval <b>2s</b></div>
+          <div><span class="status-dot online"></span> Auth <b>Online</b></div>
+          <div><span class="status-dot online"></span> Database <b>Ready</b></div>
+          <div><span class="status-dot online"></span> QR Approval <b>Active</b></div>
         </div>
       </article>
-    </section>
-
-    <section class="glass-panel recent-panel">
-      <div class="section-title"><h2>Recent Activity Feed</h2><span class="status-dot online"></span></div>
-      <div id="recentApprovals" class="recent-list"></div>
     </section>
   </main>
 </body>

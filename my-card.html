@@ -19,7 +19,7 @@
 </head>
 <body data-page="my-card">
   <aside class="sidebar">
-    <a class="logo" href="dashboard.html"><span>QR</span>Access</a>
+    <a class="logo" href="dashboard.html"><span>QR</span>SmartPass</a>
     <nav>
       <a href="dashboard.html">Dashboard</a>
       <a class="active" href="my-card.html">My Identity</a>
@@ -34,8 +34,8 @@
   <main class="app-main">
     <header class="page-header">
       <div>
-        <p class="eyebrow">Digital Identity Approval</p>
-        <h1>QR Login Verification</h1>
+        <p class="eyebrow">SmartPass</p>
+        <h1>My Identity</h1>
       </div>
       <div id="sessionInfo" class="session-pill">Checking session...</div>
     </header>
@@ -43,7 +43,7 @@
     <section class="card-layout">
       <article class="identity-card">
         <div class="card-top">
-          <span>Verified Digital Identity</span>
+          <span>Digital Identity</span>
           <b id="cardStatus">Loading</b>
         </div>
         <div class="identity-chip">ID</div>
@@ -64,7 +64,7 @@
 
         <div class="qr-stage">
           <img id="qrImage" class="qr-image" alt="QR approval code" title="Open approval page" loading="lazy" decoding="async">
-          <p class="qr-instruction">Scan or click the QR code to approve</p>
+          <p class="qr-instruction">Scan to approve this session</p>
           <button id="approvalOpenLink" class="ghost-btn approval-open-link" type="button" hidden>Open</button>
         </div>
 
@@ -83,27 +83,11 @@
           <div class="session-meta">
             <div><span>Session ID</span><strong id="approvalSessionId">-</strong></div>
             <div><span>Created</span><strong id="approvalCreatedAt">-</strong></div>
-            <div><span>Timer</span><strong id="sessionCountdown">Session expires in: --:--</strong></div>
+            <div><span>Timer</span><strong id="sessionCountdown">--:--</strong></div>
             <div><span>Device</span><strong id="approvalDevice">Desktop</strong></div>
-            <div><span>Netlify URL</span><strong>https://nfc11.netlify.app</strong></div>
-            <div><span>Polling</span><strong>Supabase every 3 seconds</strong></div>
           </div>
-          <div class="approval-url-detail">
-            <span>Approval URL</span>
-            <p id="qrLink" class="qr-link"></p>
-          </div>
+          <p id="qrLink" class="qr-link" hidden></p>
         </details>
-      </article>
-    </section>
-
-    <section class="info-grid">
-      <article class="glass-panel">
-        <h2>Verification Flow</h2>
-        <p>The desktop creates a temporary approval session in Supabase, displays a phone-readable QR code, and polls the cloud database every 2 seconds until the mobile approval page confirms access.</p>
-      </article>
-      <article class="glass-panel">
-        <h2>Access Control Model</h2>
-        <p>Each approval is tied to a digital UID, authenticated user profile, session status, timestamp, and access log entry for audit-ready verification.</p>
       </article>
     </section>
   </main>

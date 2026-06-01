@@ -21,16 +21,15 @@
   <main class="approve-shell">
     <section class="approve-panel glass-panel waiting">
       <div class="smartpass-logo">SmartPass</div>
-      <p class="eyebrow">QR Access Verification</p>
+      <p class="eyebrow">Mobile Approval</p>
       <h1>Secure Login Approval</h1>
-      <p class="local-demo-note">Public approval endpoint served by https://nfc11.netlify.app</p>
       <div class="approve-status-ring">
         <span id="approveStatusMark">...</span>
       </div>
       <div class="approve-session-box">
-        <div><span>Session ID</span><strong id="mobileSessionId">-</strong></div>
         <div><span>Request Status</span><strong id="mobileSessionStatus">Loading</strong></div>
       </div>
+      <strong id="mobileSessionId" hidden>-</strong>
       <p id="mobileApprovalMessage">Loading approval session...</p>
       <div class="approve-actions">
         <button id="mobileApproveBtn" class="primary-btn approve-button" type="button">APPROVE ACCESS</button>

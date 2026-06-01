@@ -26,12 +26,12 @@
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
   <main class="app-main">
-    <header class="page-header"><div><p class="eyebrow">Audit Trail</p><h1>Access Logs</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Logs</h1></div><div id="sessionInfo" class="session-pill"></div></header>
     <section class="glass-panel table-panel">
-      <div class="section-title"><h2>Recent Verification Events</h2><button id="refreshLogsBtn" class="ghost-btn">Refresh</button></div>
+      <div class="section-title"><h2>Access Events</h2><button id="refreshLogsBtn" class="ghost-btn">Refresh</button></div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Created At</th><th>Event</th><th>Email</th><th>UID</th><th>Result</th><th>Device</th><th>Location</th></tr></thead>
+          <thead><tr><th>Time</th><th>Email</th><th>UID</th><th>Event</th><th>Result</th><th>Device</th></tr></thead>
           <tbody id="logsTable"></tbody>
         </table>
       </div>

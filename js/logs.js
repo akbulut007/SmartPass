@@ -16,14 +16,13 @@ function renderLogsTable(logs) {
     return `
       <tr>
         <td>${formatDate(log.created_at)}</td>
-        <td><span class="event-type ${result}">${escapeHtml(formatEventType(eventType))}</span></td>
         <td>${escapeHtml(log.email || "-")}</td>
         <td>${escapeHtml(log.uid || log.card_uid || "-")}</td>
+        <td><span class="event-type ${result}">${escapeHtml(formatEventType(eventType))}</span></td>
         <td><span class="badge ${result}">${escapeHtml(result.toUpperCase())}</span></td>
         <td>${escapeHtml(log.device || "Unknown")}</td>
-        <td>${escapeHtml(eventType)}</td>
       </tr>`;
-  }).join("") || `<tr><td colspan="7">No logs found.</td></tr>`;
+  }).join("") || `<tr><td colspan="6">No logs found.</td></tr>`;
 }
 
 function filterLogs(logs, predicate) {
