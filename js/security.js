@@ -25,10 +25,13 @@ function setAllSecurityCardsLoading() {
 }
 
 async function checkSupabaseAuth() {
-  if (!db?.auth?.getSession) return securityResult("supabaseAuth", "Offline", "danger");
+  if (!db?.auth?.getSession || !db?.auth?.getUser) return securityResult("supabaseAuth", "Offline", "danger");
   try {
-    const { error } = await db.auth.getSession();
-    return securityResult("supabaseAuth", error ? "Offline" : "Connected", error ? "danger" : "online");
+    const { data: sessionData, error: sessionError } = await db.auth.getSession();
+    if (sessionError || !sessionData?.session) return securityResult("supabaseAuth", "Offline", "danger");
+
+    const { error: userError } = await db.auth.getUser();
+    return securityResult("supabaseAuth", userError ? "Offline" : "Connected", userError ? "danger" : "online");
   } catch (error) {
     return securityResult("supabaseAuth", "Offline", "danger");
   }
