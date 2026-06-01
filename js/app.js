@@ -23,5 +23,5 @@ async function init() {
   if (page === "users") return initUsers();
   if (page === "logs") return initLogs();
   if (page === "reports") return initReports();
-  if (page === "security") return;
+  if (page === "security") return initSecurityPage();
 }

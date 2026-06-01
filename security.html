@@ -15,6 +15,7 @@
   <script defer src="js/dashboard.js"></script>
   <script defer src="js/logs.js"></script>
   <script defer src="js/reports.js"></script>
+  <script defer src="js/security.js"></script>
   <script defer src="js/app.js"></script>
 </head>
 <body data-page="security">
@@ -26,13 +27,21 @@
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
   <main class="app-main">
-    <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Security Status</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <header class="page-header">
+      <div><p class="eyebrow">SmartPass</p><h1>Security Status</h1></div>
+      <div id="sessionInfo" class="session-pill"></div>
+    </header>
+    <div class="section-title">
+      <p id="securityLastChecked" class="helper-text">Last checked: -</p>
+      <button id="refreshSecurityBtn" class="ghost-btn" type="button">Refresh Security Status</button>
+    </div>
     <section class="security-grid">
-      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Organization Code</h2><p>Enabled</p></article>
-      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Admin Portal</h2><p>Protected</p></article>
-      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>QR Approval</h2><p>Enabled</p></article>
-      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Blocked Users</h2><p>Protected</p></article>
-      <article class="glass-panel security-status-card"><span class="status-dot online"></span><h2>Supabase Auth</h2><p>Connected</p></article>
+      <article class="glass-panel security-status-card" data-security-check="organizationCode"><span class="status-dot neutral"></span><h2>Organization Code</h2><p>Loading</p></article>
+      <article class="glass-panel security-status-card" data-security-check="adminPortal"><span class="status-dot neutral"></span><h2>Admin Portal</h2><p>Loading</p></article>
+      <article class="glass-panel security-status-card" data-security-check="qrApproval"><span class="status-dot neutral"></span><h2>QR Approval</h2><p>Loading</p></article>
+      <article class="glass-panel security-status-card" data-security-check="blockedUsers"><span class="status-dot neutral"></span><h2>Blocked Users</h2><p>Loading</p></article>
+      <article class="glass-panel security-status-card" data-security-check="supabaseAuth"><span class="status-dot neutral"></span><h2>Supabase Auth</h2><p>Loading</p></article>
+      <article class="glass-panel security-status-card" data-security-check="cloudDatabase"><span class="status-dot neutral"></span><h2>Cloud Database</h2><p>Loading</p></article>
     </section>
   </main>
 </body>
