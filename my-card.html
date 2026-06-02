@@ -64,22 +64,22 @@
 
         <div class="qr-stage">
           <img id="qrImage" class="qr-image" alt="QR approval code" title="Open approval page" loading="lazy" decoding="async">
-          <p class="qr-instruction">Scan to approve this session</p>
+          <p class="qr-instruction">Scan to approve</p>
           <button id="approvalOpenLink" class="ghost-btn approval-open-link" type="button" hidden>Open</button>
         </div>
 
         <div class="simulation-actions">
-          <button id="simulateApproveBtn" class="primary-btn" type="button">Simulate Mobile Approval</button>
-          <button id="simulateRejectBtn" class="danger-btn" type="button">Simulate Reject</button>
+          <button id="simulateApproveBtn" class="primary-btn" type="button">Approve</button>
+          <button id="simulateRejectBtn" class="danger-btn" type="button">Reject</button>
         </div>
 
         <div id="approvalIcon" class="approval-icon waiting">...</div>
-        <h2 id="approvalStatus">WAITING FOR APPROVAL</h2>
-        <p id="approvalDetail">Scan or click the QR code to continue.</p>
+        <h2 id="approvalStatus">Waiting</h2>
+        <p id="approvalDetail"></p>
         <p id="approvalSubdetail" class="approval-subdetail"></p>
 
         <details class="session-details">
-          <summary>Session Details</summary>
+          <summary>Session details</summary>
           <div class="session-meta">
             <div><span>Session ID</span><strong id="approvalSessionId">-</strong></div>
             <div><span>Created</span><strong id="approvalCreatedAt">-</strong></div>

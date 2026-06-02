@@ -44,7 +44,7 @@ function initUsers() {
 }
 
 async function loadUsersTable() {
-  setMessage("userFormMessage", "Loading registered identities...");
+  setMessage("userFormMessage", "Loading...");
   const cards = await safeDataLoad(fetchCards, []);
   $("usersTable").innerHTML = cards.map((card) => `
     <tr>
@@ -53,8 +53,8 @@ async function loadUsersTable() {
       <td>${escapeHtml(card.uid)}</td>
       <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
-    </tr>`).join("") || `<tr><td colspan="5">No digital identities found.</td></tr>`;
-  setMessage("userFormMessage", cards.length ? `${cards.length} identities loaded.` : "No identities found.");
+    </tr>`).join("") || `<tr><td colspan="5">No users found.</td></tr>`;
+  setMessage("userFormMessage", cards.length ? `${cards.length} users` : "No users found.");
 }
 
 async function updateCardFromTable(event) {

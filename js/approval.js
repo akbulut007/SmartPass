@@ -11,7 +11,7 @@ function initMyIdentity(user) {
 }
 
 async function loadMyCard(user) {
-  setCardLoadingState("Preparing approval session...");
+  setCardLoadingState("Loading");
   try {
     const card = await ensureUserCard(user);
     renderIdentityCard(card);
@@ -20,7 +20,7 @@ async function loadMyCard(user) {
     currentApprovalSession = session;
     renderApprovalQr(session, card);
     bindSimulationControls();
-    setApprovalState("waiting", "WAITING FOR APPROVAL", "", "");
+    setApprovalState("waiting", "Waiting", "", "");
     startCountdown(session);
     startApprovalPolling(session.id);
   } catch (error) {
@@ -124,11 +124,11 @@ async function checkApprovalStatus(sessionId) {
       setApprovalState("expired", "SESSION EXPIRED", "", "");
       stopTimers();
     } else {
-      setApprovalState("waiting", "WAITING FOR APPROVAL", "", "");
+      setApprovalState("waiting", "Waiting", "", "");
     }
   } catch (error) {
     const message = readableDbError(error);
-    setApprovalState("waiting", "WAITING FOR APPROVAL", message, "");
+    setApprovalState("waiting", "Waiting", message, "");
     showPageError(message);
   } finally {
     isApprovalPollInFlight = false;
@@ -139,7 +139,7 @@ function startCountdown(session) {
   if (countdownTimer) clearInterval(countdownTimer);
   const tick = () => {
     const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
-    if ($("sessionCountdown")) $("sessionCountdown").textContent = `Expires in: ${formatDuration(remaining)}`;
+    if ($("sessionCountdown")) $("sessionCountdown").textContent = formatDuration(remaining);
     if (remaining <= 0) clearInterval(countdownTimer);
   };
   tick();
@@ -284,7 +284,7 @@ function normalizeResult(result) {
 function setCardLoadingState(text) {
   $("cardStatus").textContent = text;
   $("cardName").textContent = "Loading...";
-  $("cardEmail").textContent = "Preparing identity";
+  $("cardEmail").textContent = "-";
   $("cardUid").textContent = "-";
   $("cardRole").textContent = "-";
   $("cardStatusDetail").textContent = "-";
@@ -292,7 +292,7 @@ function setCardLoadingState(text) {
   $("qrImage").hidden = true;
   $("qrImage").removeAttribute("tabindex");
   if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;
-  if ($("sessionCountdown")) $("sessionCountdown").textContent = "Session expires in: --:--";
+  if ($("sessionCountdown")) $("sessionCountdown").textContent = "--:--";
 }
 
 function setCardErrorState(message) {
