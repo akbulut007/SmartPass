@@ -1,4 +1,4 @@
-const PUBLIC_BASE_URL = "https://nfc11.netlify.app";
+const PUBLIC_BASE_URL = "https://akbulut007.github.io/NFC1";
 const APPROVE_BASE_URL = `${PUBLIC_BASE_URL}/approve.html`;
 const POLL_INTERVAL_MS = 3000;
 const SESSION_DURATION_MS = 2 * 60 * 1000;

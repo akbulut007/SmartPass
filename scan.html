@@ -29,9 +29,10 @@
   </main>
   <script>
     const session = new URLSearchParams(window.location.search).get("session");
+    const approvalBaseUrl = "https://akbulut007.github.io/NFC1/approve.html";
     const target = session
-      ? `approve.html?session=${encodeURIComponent(session)}`
-      : "approve.html";
+      ? `${approvalBaseUrl}?session=${encodeURIComponent(session)}`
+      : approvalBaseUrl;
     document.getElementById("legacyApproveLink").href = target;
     if (!session) {
       document.getElementById("legacyScanMessage").textContent = "Invalid approval request.";
