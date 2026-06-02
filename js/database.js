@@ -128,7 +128,7 @@ async function fetchCardByUid(uid) {
 async function fetchCards() {
   const { data, error } = await db
     .from("cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("*")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data || [];
