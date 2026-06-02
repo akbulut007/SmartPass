@@ -26,12 +26,53 @@
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
   <main class="app-main">
-    <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Reports</h1></div><div id="sessionInfo" class="session-pill"></div></header>
+    <header class="page-header">
+      <div><p class="eyebrow">SmartPass</p><h1>Reports</h1></div>
+      <div class="header-actions">
+        <button id="exportReportBtn" class="primary-btn" type="button">Export CSV</button>
+        <div id="sessionInfo" class="session-pill"></div>
+      </div>
+    </header>
     <section class="stats-grid">
       <article class="metric-card granted"><p>Approved</p><strong id="reportApproved">0</strong></article>
       <article class="metric-card denied"><p>Rejected</p><strong id="reportRejected">0</strong></article>
       <article class="metric-card denied"><p>Blocked Users</p><strong id="reportBlocked">0</strong></article>
       <article class="metric-card"><p>Total Logs</p><strong id="reportTotalLogs">0</strong></article>
+    </section>
+    <section class="report-layout">
+      <article class="glass-panel report-breakdown">
+        <div class="section-title"><h2>Activity Breakdown</h2></div>
+        <div class="breakdown-grid">
+          <div><span>Approval Rate</span><strong id="approvalRate">0%</strong></div>
+          <div><span>Rejection Rate</span><strong id="rejectionRate">0%</strong></div>
+          <div><span>Blocked Users</span><strong id="blockedUserCount">0</strong></div>
+          <div><span>Total Events</span><strong id="totalAccessEvents">0</strong></div>
+        </div>
+      </article>
+
+      <article class="glass-panel report-visual">
+        <div class="section-title"><h2>Access Mix</h2></div>
+        <div class="report-bar">
+          <span id="approvedMixBar" class="approved"></span>
+          <span id="rejectedMixBar" class="rejected"></span>
+          <span id="otherMixBar" class="other"></span>
+        </div>
+        <div class="report-legend">
+          <span><i class="approved"></i>Approved</span>
+          <span><i class="rejected"></i>Rejected</span>
+          <span><i class="other"></i>Other</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="glass-panel table-panel report-table-panel">
+      <div class="section-title"><h2>Recent Report</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Approved</th><th>Rejected</th><th>Total Events</th></tr></thead>
+          <tbody id="reportTable"></tbody>
+        </table>
+      </div>
     </section>
   </main>
 </body>
