@@ -1,5 +1,5 @@
 window.NFC_SUPABASE = {
-  url: "https://mkpqsvqmlvntdhvwjalf.supabase.co",
+  url: "https://ysepwkkqcnzeolmpepgv.supabase.co",
   anonKey: "sb_publishable_FlCl4GbQH6jg5eJBD56DZg_n5_nd99f"
 };
 
