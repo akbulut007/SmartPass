@@ -1,6 +1,6 @@
 window.NFC_SUPABASE = window.NFC_SUPABASE || {
   url: "https://ysepwkkqcnzeolmpepgv.supabase.co",
-  anonKey: "sb_publishable_FlCl4GbQH6jg5eJBD56DZg_n5_nd99f"
+  anonKey: "sb_publishable_HcqSJoqa5jNz_81LL2ErOg_L651xIVG"
 };
 
 window.QR_ACCESS_CONFIG = window.QR_ACCESS_CONFIG || window.NFC_SUPABASE;
