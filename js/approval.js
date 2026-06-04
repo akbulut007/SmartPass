@@ -114,14 +114,22 @@ async function expireSession(session) {
 
 function setApprovalState(state, titleText, detailText, subdetailText = "") {
   const panel = $("approvalPanel");
-  if (panel) panel.className = `approval-panel glass-panel ${state}`;
+  if (panel) {
+    const previousState = panel.dataset.approvalState || "";
+    panel.dataset.approvalState = state;
+    panel.className = `approval-panel glass-panel ${state}`;
+    if (previousState && previousState !== state && ["approved", "rejected", "expired"].includes(state)) {
+      panel.classList.add(`status-animate-${state}`);
+      window.setTimeout(() => panel.classList.remove(`status-animate-${state}`), 900);
+    }
+  }
   if ($("approvalStatusBadge")) {
     $("approvalStatusBadge").className = `approval-status-badge ${state}`;
     $("approvalStatusBadge").textContent = title(state);
   }
   if ($("approvalIcon")) {
     $("approvalIcon").className = `approval-icon ${state}`;
-    $("approvalIcon").textContent = state === "approved" ? "OK" : state === "rejected" ? "NO" : state === "expired" ? "--" : "...";
+    $("approvalIcon").textContent = state === "approved" ? "✓" : state === "rejected" ? "×" : state === "expired" ? "!" : "...";
   }
   if ($("approvalStatus")) $("approvalStatus").textContent = titleText;
   if ($("approvalDetail")) $("approvalDetail").textContent = detailText;
