@@ -20,7 +20,7 @@ function ensureAccessRequestModal() {
       <div class="access-request-header">
         <div>
           <p class="eyebrow">SmartPass</p>
-          <h2 id="accessRequestTitle">Request Access Code</h2>
+          <h2 id="accessRequestTitle">Contact Access Support</h2>
         </div>
         <button class="ghost-btn request-close-btn" type="button" data-close-access-request>Close</button>
       </div>
@@ -32,7 +32,10 @@ function ensureAccessRequestModal() {
           <input type="email" id="requestEmail" autocomplete="email" placeholder="student@university.edu">
         </label>
         <label>Request Type
-          <input type="text" value="Access Code" disabled>
+          <select id="requestType">
+            <option value="access_code" selected>Access Code</option>
+            <option value="other">Other</option>
+          </select>
         </label>
         <label>Reason for request
           <textarea id="requestReason" rows="4" placeholder="Tell us why you need an access code"></textarea>
@@ -46,6 +49,7 @@ function ensureAccessRequestModal() {
   modal.querySelectorAll("[data-close-access-request]").forEach((button) => {
     button.addEventListener("click", closeAccessRequestModal);
   });
+  modal.querySelector("#requestType")?.addEventListener("change", updateAccessRequestReasonPlaceholder);
   modal.querySelector("#accessRequestForm")?.addEventListener("submit", submitAccessRequest);
   return modal;
 }
@@ -54,6 +58,7 @@ function openAccessRequestModal() {
   const modal = ensureAccessRequestModal();
   modal.hidden = false;
   $("accessRequestMessage").textContent = "";
+  updateAccessRequestReasonPlaceholder();
   $("requestFullName")?.focus();
 }
 
@@ -66,11 +71,13 @@ async function submitAccessRequest(event) {
   event.preventDefault();
   const fullName = $("requestFullName").value.trim();
   const email = $("requestEmail").value.trim().toLowerCase();
+  const requestType = $("requestType")?.value === "other" ? "other" : "access_code";
   const reason = $("requestReason").value.trim();
 
   if (!fullName) return setMessage("accessRequestMessage", "Please enter your full name.", "error");
   if (!email) return setMessage("accessRequestMessage", "Please enter your email.", "error");
   if (!isValidEmail(email)) return setMessage("accessRequestMessage", "Please enter a valid email address.", "error");
+  if (requestType === "other" && !reason) return setMessage("accessRequestMessage", "Please describe your request.", "error");
   if (!db) return setMessage("accessRequestMessage", "Configure Supabase first.", "error");
 
   setMessage("accessRequestMessage", "Submitting request...");
@@ -83,12 +90,21 @@ async function submitAccessRequest(event) {
     if (pendingRequest) {
       return setMessage("accessRequestMessage", "You already have a pending access code request.", "error");
     }
-    await createAccessRequest({ full_name: fullName, email, reason });
+    await createAccessRequest({ full_name: fullName, email, reason, request_type: requestType });
     event.target.reset();
+    updateAccessRequestReasonPlaceholder();
     setMessage("accessRequestMessage", "Your request has been submitted. An administrator will review it.");
   } catch (error) {
     setMessage("accessRequestMessage", readableDbError(error), "error");
   }
+}
+
+function updateAccessRequestReasonPlaceholder() {
+  const reasonField = $("requestReason");
+  if (!reasonField) return;
+  const requestType = $("requestType")?.value === "other" ? "other" : "access_code";
+  reasonField.placeholder = requestType === "other" ? "Describe your request" : "Tell us why you need an access code";
+  reasonField.required = requestType === "other";
 }
 
 function initRequestsPage() {

@@ -251,7 +251,7 @@ async function createAccessRequest(record) {
     full_name: record.full_name,
     email: record.email,
     reason: record.reason || null,
-    request_type: "access_code",
+    request_type: record.request_type || "access_code",
     status: "pending"
   });
   if (error) throw error;
