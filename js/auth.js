@@ -182,24 +182,35 @@ async function userLogin(event) {
 async function adminLogin(event) {
   event.preventDefault();
   const email = $("adminLoginEmail").value.trim().toLowerCase();
+  const expectedAdminEmail = ADMIN_EMAIL.trim().toLowerCase();
   const code = $("adminAccessCode")?.value.trim() || "";
-  if (email !== ADMIN_EMAIL || code !== ADMIN_ACCESS_CODE) {
+  const codeMatches = code === ADMIN_ACCESS_CODE;
+  console.log("[SmartPass] Admin login input email:", email);
+  console.log("[SmartPass] Admin login expected admin email:", expectedAdminEmail);
+  console.log("[SmartPass] Admin login code match:", codeMatches);
+
+  if (!codeMatches) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Invalid admin code", "error");
+  }
+  if (email !== expectedAdminEmail) {
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
     return setMessage("authMessage", "Access denied", "error");
   }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
   setMessage("authMessage", "Signing in...");
-  const { error } = await db.auth.signInWithPassword({
+  const { data, error } = await db.auth.signInWithPassword({
     email,
     password: $("adminLoginPassword").value
   });
+  console.log("[SmartPass] Admin login Supabase auth success:", !error);
   if (error) {
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
-    return setMessage("authMessage", "Access denied", "error");
+    return setMessage("authMessage", "Invalid email or password", "error");
   }
-  const user = await getCurrentUser();
-  if (!isAdminUser(user)) {
+  const user = data.user || await getCurrentUser();
+  if (user?.email?.trim().toLowerCase() !== expectedAdminEmail) {
     await logAuthActivity("admin_login_failed", user, { location: "admin_login_failed" });
     await db.auth.signOut();
     return setMessage("authMessage", "Access denied", "error");
