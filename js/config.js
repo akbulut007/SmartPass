@@ -1,5 +1,5 @@
-const NFC_SUPABASE_URL = "https://ysepwkkqcnzeolmpepgv.supabase.co";
-const NFC_SUPABASE_ANON_KEY = "sb_publishable_HcqSJoqa5jNz_81LL2ErOg_L651xIVG";
+const NFC_SUPABASE_URL = "https://mkpqsvqmlvntdhvwjalf.supabase.co";
+const NFC_SUPABASE_ANON_KEY = "sb_publishable_FlCl4GbQH6jg5eJBD56DZg_n5_nd99f";
 
 window.NFC_SUPABASE = {
   url: NFC_SUPABASE_URL,
