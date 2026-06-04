@@ -29,9 +29,20 @@
     <header class="page-header"><div><p class="eyebrow">SmartPass</p><h1>Logs</h1></div><div id="sessionInfo" class="session-pill"></div></header>
     <section class="glass-panel table-panel">
       <div class="section-title"><h2>Access Events</h2><button id="refreshLogsBtn" class="ghost-btn">Refresh</button></div>
+      <div class="admin-filter-bar">
+        <input id="logsSearchInput" type="search" placeholder="Search logs by name, email, UID, result, or device" autocomplete="off">
+        <div id="logsQuickFilters" class="quick-filter-group" aria-label="Log filters">
+          <button class="filter-chip active" type="button" data-log-filter="all">All</button>
+          <button class="filter-chip" type="button" data-log-filter="approved">Approved</button>
+          <button class="filter-chip" type="button" data-log-filter="rejected">Rejected</button>
+          <button class="filter-chip" type="button" data-log-filter="login">Login</button>
+          <button class="filter-chip" type="button" data-log-filter="blocked">Blocked</button>
+        </div>
+        <span id="logsResultCount" class="users-result-count">Showing 0 of 0 logs</span>
+      </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Time</th><th>Email</th><th>UID</th><th>Event</th><th>Result</th><th>Device</th></tr></thead>
+          <thead><tr><th>Time</th><th>Name</th><th>Email</th><th>UID</th><th>Event</th><th>Result</th><th>Device</th></tr></thead>
           <tbody id="logsTable"></tbody>
         </table>
       </div>
