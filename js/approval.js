@@ -17,6 +17,11 @@ async function loadMyCard(user) {
   try {
     const card = await ensureUserCard(user);
     renderIdentityCard(card);
+    if (isAdminCard(card)) {
+      renderAdminIdentityOnly();
+      return;
+    }
+    renderApprovalSessionPanel();
     const session = await createApprovalSession(card);
     currentApprovalCard = card;
     currentApprovalSession = session;
@@ -29,6 +34,25 @@ async function loadMyCard(user) {
     setCardErrorState(message);
     showPageError(message);
   }
+}
+
+function isAdminCard(card) {
+  return String(card?.role || "").toLowerCase() === "admin";
+}
+
+function renderAdminIdentityOnly() {
+  stopTimers();
+  isApprovalPollingActive = false;
+  currentApprovalSession = null;
+  currentApprovalCard = null;
+  currentApprovalUrl = "";
+  if ($("approvalPanel")) $("approvalPanel").hidden = true;
+  if ($("adminApprovalNote")) $("adminApprovalNote").hidden = false;
+}
+
+function renderApprovalSessionPanel() {
+  if ($("approvalPanel")) $("approvalPanel").hidden = false;
+  if ($("adminApprovalNote")) $("adminApprovalNote").hidden = true;
 }
 
 function renderIdentityCard(card) {
@@ -264,6 +288,7 @@ function normalizeResult(result) {
 }
 
 function setCardLoadingState(text) {
+  renderApprovalSessionPanel();
   $("cardStatus").textContent = text;
   $("cardName").textContent = "Loading...";
   $("cardEmail").textContent = "-";
