@@ -18,7 +18,7 @@ async function loadMyCard(user) {
     const card = await ensureUserCard(user);
     renderIdentityCard(card);
     if (isAdminCard(card)) {
-      renderAdminIdentityOnly();
+      renderAdminIdentityQr(card);
       return;
     }
     renderApprovalSessionPanel();
@@ -40,19 +40,38 @@ function isAdminCard(card) {
   return String(card?.role || "").toLowerCase() === "admin";
 }
 
-function renderAdminIdentityOnly() {
+function renderAdminIdentityQr(card) {
   stopTimers();
   isApprovalPollingActive = false;
   currentApprovalSession = null;
   currentApprovalCard = null;
   currentApprovalUrl = "";
-  if ($("approvalPanel")) $("approvalPanel").hidden = true;
-  if ($("adminApprovalNote")) $("adminApprovalNote").hidden = false;
+  const panel = $("approvalPanel");
+  if (!panel) return;
+  const qrPayload = {
+    full_name: card.full_name,
+    email: card.email,
+    uid: card.uid,
+    role: "admin"
+  };
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(JSON.stringify(qrPayload))}`;
+  panel.hidden = false;
+  panel.className = "approval-panel glass-panel admin-identity-panel";
+  panel.innerHTML = `
+    <div class="approval-header">
+      <h2>Admin Identity QR</h2>
+      <span class="approval-status-badge admin">ADMIN</span>
+    </div>
+    <div class="qr-stage">
+      <img class="qr-image" src="${escapeHtml(qrSrc)}" alt="Admin identity QR code" title="Scan this QR code" loading="lazy" decoding="async">
+      <p class="qr-instruction">Administrator identity verification</p>
+    </div>
+    <p class="admin-qr-note">Approval sessions are only required for standard users.</p>
+  `;
 }
 
 function renderApprovalSessionPanel() {
   if ($("approvalPanel")) $("approvalPanel").hidden = false;
-  if ($("adminApprovalNote")) $("adminApprovalNote").hidden = true;
 }
 
 function renderIdentityCard(card) {
