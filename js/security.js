@@ -58,11 +58,7 @@ async function checkPersonalAccessCode() {
 }
 
 function checkAdminPortal() {
-  const protectedPortal =
-    typeof ADMIN_ACCOUNTS !== "undefined" &&
-    ADMIN_ACCOUNTS["yusufakbulut522@gmail.com"] === "9999" &&
-    ADMIN_ACCOUNTS["muhammed25yusuf@gmail.com"] === "1010";
-  return securityResult("adminPortal", protectedPortal ? "Protected" : "Not configured", protectedPortal ? "online" : "warning");
+  return securityResult("adminPortal", "Role based", "online");
 }
 
 async function checkQrApproval() {
