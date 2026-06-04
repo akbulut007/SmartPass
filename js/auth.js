@@ -206,6 +206,7 @@ async function adminLogin(event) {
   });
   console.log("[SmartPass] Admin login Supabase auth success:", !error);
   if (error) {
+    console.error("[ADMIN LOGIN ERROR]", error);
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
     return setMessage("authMessage", "Invalid email or password", "error");
   }
