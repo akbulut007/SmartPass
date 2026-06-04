@@ -207,6 +207,73 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 .auth-form h2, .glass-panel h2 { margin: 0; }
 .auth-form p, .glass-panel p { color: var(--muted); line-height: 1.65; }
 label { display: grid; gap: 8px; color: #f8fafc; font-weight: 700; }
+.field-label-with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+}
+.access-code-help {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(249, 115, 22, 0.9);
+  border-radius: 999px;
+  background: rgba(35, 18, 57, 0.88);
+  color: #fed7aa;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+  cursor: help;
+  outline: none;
+}
+.access-code-help:hover,
+.access-code-help:focus-visible {
+  color: #fff;
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
+}
+.access-code-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  z-index: 20;
+  width: min(280px, calc(100vw - 48px));
+  padding: 10px 12px;
+  border: 1px solid rgba(249, 115, 22, 0.42);
+  border-radius: 8px;
+  background: rgba(20, 12, 36, 0.97);
+  color: #fff7ed;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+  text-align: left;
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+}
+.access-code-tooltip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid rgba(249, 115, 22, 0.42);
+  border-bottom: 1px solid rgba(249, 115, 22, 0.42);
+  background: rgba(20, 12, 36, 0.97);
+  transform: translate(-50%, -4px) rotate(45deg);
+}
+.access-code-help:hover .access-code-tooltip,
+.access-code-help:focus-visible .access-code-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
 .helper-text { color: var(--muted); font-size: .86rem; line-height: 1.45; font-weight: 500; }
 .code-input {
   max-width: 100%;

@@ -39,7 +39,14 @@
         <label>Password
           <input type="password" id="userLoginPassword" required autocomplete="current-password" placeholder="Password">
         </label>
-        <label title="This code is generated after registration and is required for future logins. Contact the administrator if you lose it.">Personal Access Code
+        <label>
+          <span class="field-label-with-help">
+            Personal Access Code
+            <span class="access-code-help" tabindex="0" aria-label="This code is generated after registration and is required for future logins. Contact the administrator if you lose it.">
+              ?
+              <span class="access-code-tooltip" role="tooltip">This code is generated after registration and is required for future logins. Contact the administrator if you lose it.</span>
+            </span>
+          </span>
           <input type="password" id="personalAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter personal code">
         </label>
         <button class="primary-btn" type="submit">Login</button>
