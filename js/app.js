@@ -7,7 +7,11 @@ async function init() {
   if (!isConfigured) showConfigWarning();
   if (!page) return;
 
-  if (["user-login", "admin-login", "register"].includes(page)) return initLoginPage();
+  if (["user-login", "admin-login", "register"].includes(page)) {
+    initLoginPage();
+    if (typeof initAccessRequestWidgets === "function") initAccessRequestWidgets();
+    return;
+  }
   if (page === "approve") return initMobileApproval();
   if (page === "scan") return initMobileApproval();
 
@@ -23,5 +27,6 @@ async function init() {
   if (page === "users") return initUsers();
   if (page === "logs") return initLogs();
   if (page === "reports") return initReports();
+  if (page === "requests") return initRequestsPage();
   if (page === "security") return initSecurityPage();
 }

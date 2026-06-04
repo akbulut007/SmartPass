@@ -1,4 +1,4 @@
-const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "security"];
+const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "requests", "security"];
 const ACCESS_RESTRICTED_MESSAGE = "Administrator access required.";
 
 function bindLogout() {
@@ -86,6 +86,7 @@ function renderRoleNavigation(user) {
         ["users.html", "Users"],
         ["logs.html", "Logs"],
         ["reports.html", "Reports"],
+        ["requests.html", "Requests"],
         ["security.html", "Security"]
       ]
     : [["my-card.html", "My Identity"]];

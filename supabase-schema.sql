@@ -33,6 +33,17 @@ create table if not exists public.access_logs (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.access_requests (
+  id uuid primary key default gen_random_uuid(),
+  full_name text not null,
+  email text not null,
+  request_type text not null default 'access_code',
+  reason text,
+  status text not null default 'pending',
+  created_at timestamptz not null default now(),
+  constraint access_requests_status_check check (status in ('pending', 'reviewed', 'approved', 'rejected'))
+);
+
 do $$
 begin
   if to_regclass('public.cards') is not null then
@@ -92,10 +103,14 @@ create index if not exists approval_sessions_status_idx on public.approval_sessi
 create index if not exists approval_sessions_created_at_idx on public.approval_sessions(created_at desc);
 create index if not exists approval_sessions_expires_at_idx on public.approval_sessions(expires_at);
 create index if not exists access_logs_created_at_idx on public.access_logs(created_at desc);
+create index if not exists access_requests_created_at_idx on public.access_requests(created_at desc);
+create index if not exists access_requests_email_idx on public.access_requests(email);
+create index if not exists access_requests_status_idx on public.access_requests(status);
 
 alter table public.users_cards enable row level security;
 alter table public.approval_sessions enable row level security;
 alter table public.access_logs enable row level security;
+alter table public.access_requests enable row level security;
 
 drop policy if exists "read digital identity registry" on public.users_cards;
 create policy "read digital identity registry"
@@ -152,3 +167,32 @@ create policy "authenticated users can read access logs"
 on public.access_logs for select
 to authenticated
 using (true);
+
+drop policy if exists "anon users can create access requests" on public.access_requests;
+create policy "anon users can create access requests"
+on public.access_requests for insert
+to anon, authenticated
+with check (
+  request_type = 'access_code'
+  and status = 'pending'
+);
+
+drop policy if exists "admins can read access requests" on public.access_requests;
+create policy "admins can read access requests"
+on public.access_requests for select
+to authenticated
+using (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+);
+
+drop policy if exists "admins can update access requests" on public.access_requests;
+create policy "admins can update access requests"
+on public.access_requests for update
+to authenticated
+using (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+)
+with check (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+  and status in ('pending', 'reviewed', 'approved', 'rejected')
+);
