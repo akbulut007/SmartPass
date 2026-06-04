@@ -519,6 +519,19 @@ h1 { margin: 0; font-size: 42px; line-height: 1.1; color: #fff; text-shadow: 0 0
 .glass-panel { padding: 22px; }
 .section-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .section-title a { color: var(--orange); font-weight: 800; }
+.user-search-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 14px;
+}
+.users-result-count {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
 .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
 .status-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--muted); box-shadow: 0 0 10px currentColor; }
 .status-dot.online { color: var(--green); background: var(--green); }
@@ -1142,6 +1155,8 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
   .auth-visual, .auth-card, .glass-panel, .identity-card, .landing-hero { padding: 20px; border-radius: 16px; }
   .auth-visual h1, .landing-hero h1, h1 { font-size: 30px; line-height: 1.12; }
   .stats-grid, .card-data, .scan-details, .session-meta, .breakdown-grid, .approve-session-box, .approve-actions { grid-template-columns: 1fr; }
+  .user-search-bar { grid-template-columns: 1fr; }
+  .users-result-count { white-space: normal; }
   .sidebar nav { grid-template-columns: 1fr 1fr; }
   .page-header { align-items: flex-start; flex-direction: column; }
   .signal-grid { display: none; }

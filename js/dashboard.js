@@ -1,3 +1,6 @@
+var usersCache = [];
+const USER_ROLE_OPTIONS = ["admin", "student", "staff", "visitor"];
+
 async function initDashboard() {
   if (document.body.dataset.page !== "dashboard") return;
   return loadDashboard();
@@ -38,27 +41,46 @@ function renderRecentApprovals(logs) {
 
 function initUsers() {
   if (document.body.dataset.page !== "users") return;
-  $("refreshUsersBtn")?.addEventListener("click", loadUsersTable);
+  $("refreshUsersBtn")?.addEventListener("click", () => loadUsersTable({ resetSearch: true }));
+  $("usersSearchInput")?.addEventListener("input", renderUsersTable);
   $("usersTable")?.addEventListener("change", updateCardFromTable);
   $("usersTable")?.addEventListener("click", regenerateCodeFromTable);
   loadUsersTable();
 }
 
-async function loadUsersTable() {
+async function loadUsersTable(options = {}) {
   setMessage("userFormMessage", "Loading...");
-  const cards = await safeDataLoad(fetchCards, []);
-  const roleOptions = ["admin", "student", "staff", "visitor"];
+  usersCache = await safeDataLoad(fetchCards, []);
+  if (options.resetSearch && $("usersSearchInput")) $("usersSearchInput").value = "";
+  renderUsersTable();
+}
+
+function renderUsersTable() {
+  const query = ($("usersSearchInput")?.value || "").trim().toLowerCase();
+  const cards = filterUsers(usersCache, query);
   $("usersTable").innerHTML = cards.map((card) => `
     <tr>
       <td>${escapeHtml(card.full_name)}</td>
       <td>${escapeHtml(card.email)}</td>
       <td>${escapeHtml(card.uid)}</td>
       <td><code>${escapeHtml(card.access_code || "-")}</code></td>
-      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${roleOptions.map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
+      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${USER_ROLE_OPTIONS.map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
       <td><button class="ghost-btn" type="button" data-regenerate-code="${card.id}">Regenerate Code</button></td>
-    </tr>`).join("") || `<tr><td colspan="7">No users found.</td></tr>`;
-  setMessage("userFormMessage", cards.length ? `${cards.length} users` : "No users found.");
+    </tr>`).join("") || `<tr><td colspan="7">${query ? "No matching users found." : "No users found."}</td></tr>`;
+  if ($("usersResultCount")) $("usersResultCount").textContent = `Showing ${cards.length} of ${usersCache.length} users`;
+  setMessage("userFormMessage", usersCache.length ? `Showing ${cards.length} of ${usersCache.length} users` : "No users found.");
+}
+
+function filterUsers(cards, query) {
+  if (!query) return cards;
+  return cards.filter((card) => [
+    card.full_name,
+    card.email,
+    card.uid,
+    card.role,
+    card.status
+  ].some((value) => String(value || "").toLowerCase().includes(query)));
 }
 
 async function updateCardFromTable(event) {
