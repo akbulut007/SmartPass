@@ -385,7 +385,7 @@ label { display: grid; gap: 8px; color: #f8fafc; font-weight: 700; }
 .auth-links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
   color: var(--cyan);
   font-size: 13px;
