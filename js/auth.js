@@ -141,6 +141,15 @@ async function userLogin(event) {
   event.preventDefault();
   const code = $("personalAccessCode")?.value.trim() || "";
   const email = $("userLoginEmail").value.trim().toLowerCase();
+  const password = $("userLoginPassword").value;
+  if (!email) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", "Please enter your email.", "error");
+  }
+  if (!password) {
+    await logActivity("user_login_failed", { email, location: "user_login_failed" });
+    return setMessage("authMessage", "Please enter your password.", "error");
+  }
   if (!code) {
     await logActivity("user_login_failed", { email, location: "user_login_failed" });
     return setMessage("authMessage", "Please enter personal access code.", "error");
@@ -150,7 +159,7 @@ async function userLogin(event) {
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({
     email,
-    password: $("userLoginPassword").value
+    password
   });
   if (error) {
     await logActivity("user_login_failed", { email, location: "user_login_failed" });
@@ -192,19 +201,28 @@ async function validatePersonalAccessCode(user, card, code, failedLocation) {
 async function adminLogin(event) {
   event.preventDefault();
   const email = $("adminLoginEmail").value.trim().toLowerCase();
+  const password = $("adminLoginPassword").value;
   const code = $("adminPersonalAccessCode")?.value.trim() || "";
   console.log("[SmartPass] Admin login input email:", email);
 
+  if (!email) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Please enter your email.", "error");
+  }
+  if (!password) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Please enter your password.", "error");
+  }
   if (!code) {
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
-    return setMessage("authMessage", "Please enter personal access code.", "error");
+    return setMessage("authMessage", "Please enter your admin access code.", "error");
   }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
   setMessage("authMessage", "Signing in...");
   const { data, error } = await db.auth.signInWithPassword({
     email,
-    password: $("adminLoginPassword").value
+    password
   });
   console.log("[SmartPass] Admin login Supabase auth success:", !error);
   if (error) {
@@ -239,7 +257,10 @@ async function register(event) {
   const password = $("registerPassword").value;
   const confirmPassword = $("registerConfirmPassword").value;
   if (!fullName) return setMessage("authMessage", "Please enter your full name.", "error");
+  if (!email) return setMessage("authMessage", "Please enter your email.", "error");
   if (!isValidEmail(email)) return setMessage("authMessage", "Please enter a valid email address.", "error");
+  if (!password) return setMessage("authMessage", "Please enter your password.", "error");
+  if (!confirmPassword) return setMessage("authMessage", "Please confirm your password.", "error");
   if (password.length < 6) return setMessage("authMessage", "Password must be at least 6 characters.", "error");
   if (password !== confirmPassword) return setMessage("authMessage", "Passwords do not match.", "error");
 
