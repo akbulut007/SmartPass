@@ -1,5 +1,6 @@
 const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "requests", "security"];
 const ACCESS_RESTRICTED_MESSAGE = "Administrator access required.";
+const PUBLIC_REGISTRATION_ROLES = ["student", "staff", "visitor"];
 
 function bindLogout() {
   const btn = $("logoutBtn");
@@ -255,6 +256,7 @@ async function register(event) {
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
   const fullName = $("registerName").value.trim();
   const email = $("registerEmail").value.trim();
+  const role = PUBLIC_REGISTRATION_ROLES.includes($("registerUserType")?.value) ? $("registerUserType").value : "student";
   const password = $("registerPassword").value;
   const confirmPassword = $("registerConfirmPassword").value;
   if (!fullName) return setMessage("authMessage", "Please enter your full name.", "error");
@@ -285,7 +287,7 @@ async function register(event) {
       email: email,
       full_name: fullName,
       uid: generateUid(),
-      role: "student",
+      role,
       status: "active",
       access_code: accessCode
     });

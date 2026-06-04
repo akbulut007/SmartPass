@@ -47,13 +47,14 @@ function initUsers() {
 async function loadUsersTable() {
   setMessage("userFormMessage", "Loading...");
   const cards = await safeDataLoad(fetchCards, []);
+  const roleOptions = ["admin", "student", "staff", "visitor"];
   $("usersTable").innerHTML = cards.map((card) => `
     <tr>
       <td>${escapeHtml(card.full_name)}</td>
       <td>${escapeHtml(card.email)}</td>
       <td>${escapeHtml(card.uid)}</td>
       <td><code>${escapeHtml(card.access_code || "-")}</code></td>
-      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "admin"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
+      <td><select class="table-select" data-card-id="${card.id}" data-field="role">${roleOptions.map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
       <td><button class="ghost-btn" type="button" data-regenerate-code="${card.id}">Regenerate Code</button></td>
     </tr>`).join("") || `<tr><td colspan="7">No users found.</td></tr>`;
