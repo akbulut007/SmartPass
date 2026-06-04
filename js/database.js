@@ -1,11 +1,29 @@
 async function getUserCard(user) {
   const { data, error } = await db
     .from("cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("user_id", user.id)
     .maybeSingle();
   if (error) throw error;
   return data;
+}
+
+function generatePersonalAccessCode() {
+  return String(crypto.getRandomValues(new Uint32Array(1))[0] % 10000).padStart(4, "0");
+}
+
+async function generateUniquePersonalAccessCode() {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const accessCode = generatePersonalAccessCode();
+    const { data, error } = await db
+      .from("cards")
+      .select("id")
+      .eq("access_code", accessCode)
+      .limit(1);
+    if (error) throw error;
+    if (!data?.length) return accessCode;
+  }
+  throw new Error("Could not generate a unique access code. Please try again.");
 }
 
 async function createUserCard(user, suppliedName) {
@@ -16,12 +34,13 @@ async function createUserCard(user, suppliedName) {
     full_name: fullName,
     uid: generateUid(),
     role: "student",
-    status: "active"
+    status: "active",
+    access_code: await generateUniquePersonalAccessCode()
   };
   const { data, error } = await db
     .from("cards")
     .insert(record)
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .single();
   if (error) throw error;
   return data;
@@ -36,7 +55,7 @@ async function ensureUserCard(user, suppliedName) {
 async function getPublicCardByUserOrEmail(userId, email) {
   const { data: byUserId, error: userError } = await db
     .from("cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("user_id", userId)
     .limit(1);
   if (userError) throw userError;
@@ -44,7 +63,7 @@ async function getPublicCardByUserOrEmail(userId, email) {
 
   const { data: byEmail, error: emailError } = await db
     .from("cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("email", email)
     .limit(1);
   if (emailError) throw emailError;
@@ -60,12 +79,13 @@ async function ensurePublicCardForRegisteredUser(user, fullName) {
     full_name: fullName,
     uid: generateUid(),
     role: "student",
-    status: "active"
+    status: "active",
+    access_code: await generateUniquePersonalAccessCode()
   };
   const { data, error } = await db
     .from("cards")
     .insert(record)
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .single();
   if (error) throw error;
   return data;
@@ -118,7 +138,7 @@ async function fetchApprovalSession(sessionId) {
 async function fetchCardByUid(uid) {
   const { data, error } = await db
     .from("cards")
-    .select("id,user_id,email,full_name,uid,role,status,created_at")
+    .select("id,user_id,email,full_name,uid,role,status,access_code,created_at")
     .eq("uid", uid)
     .maybeSingle();
   if (error) throw error;
@@ -211,6 +231,13 @@ async function logAuthActivity(eventType, userOrEmail, extra = {}) {
 async function updateUserCardField(cardId, field, value) {
   const { error } = await db.from("cards").update({ [field]: value }).eq("id", cardId);
   if (error) throw error;
+}
+
+async function regenerateUserAccessCode(cardId) {
+  const accessCode = await generateUniquePersonalAccessCode();
+  const { error } = await db.from("cards").update({ access_code: accessCode }).eq("id", cardId);
+  if (error) throw error;
+  return accessCode;
 }
 
 async function createStandaloneUserCard(record) {

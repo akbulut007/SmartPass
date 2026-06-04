@@ -40,6 +40,7 @@ function initUsers() {
   if (document.body.dataset.page !== "users") return;
   $("refreshUsersBtn")?.addEventListener("click", loadUsersTable);
   $("usersTable")?.addEventListener("change", updateCardFromTable);
+  $("usersTable")?.addEventListener("click", regenerateCodeFromTable);
   loadUsersTable();
 }
 
@@ -51,9 +52,11 @@ async function loadUsersTable() {
       <td>${escapeHtml(card.full_name)}</td>
       <td>${escapeHtml(card.email)}</td>
       <td>${escapeHtml(card.uid)}</td>
+      <td><code>${escapeHtml(card.access_code || "-")}</code></td>
       <td><select class="table-select" data-card-id="${card.id}" data-field="role">${["student", "visitor", "employee"].map((role) => `<option value="${role}" ${role === card.role ? "selected" : ""}>${title(role)}</option>`).join("")}</select></td>
       <td><select class="table-select ${card.status}" data-card-id="${card.id}" data-field="status">${["active", "blocked"].map((status) => `<option value="${status}" ${status === card.status ? "selected" : ""}>${title(status)}</option>`).join("")}</select></td>
-    </tr>`).join("") || `<tr><td colspan="5">No users found.</td></tr>`;
+      <td><button class="ghost-btn" type="button" data-regenerate-code="${card.id}">Regenerate Code</button></td>
+    </tr>`).join("") || `<tr><td colspan="7">No users found.</td></tr>`;
   setMessage("userFormMessage", cards.length ? `${cards.length} users` : "No users found.");
 }
 
@@ -74,6 +77,22 @@ async function updateCardFromTable(event) {
   setMessage("userFormMessage", "Identity updated.");
   await loadUsersTable();
   setMessage("userFormMessage", "Identity updated.");
+}
+
+async function regenerateCodeFromTable(event) {
+  const button = event.target.closest("[data-regenerate-code]");
+  if (!button) return;
+  const cardId = button.dataset.regenerateCode;
+  button.disabled = true;
+  setMessage("userFormMessage", "Regenerating access code...");
+  try {
+    const accessCode = await regenerateUserAccessCode(cardId);
+    await loadUsersTable();
+    setMessage("userFormMessage", `Access code regenerated: ${accessCode}`);
+  } catch (error) {
+    button.disabled = false;
+    showPageError(readableDbError(error));
+  }
 }
 
 function countStatuses(sessions) {

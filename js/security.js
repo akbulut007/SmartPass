@@ -9,7 +9,7 @@ async function runSecurityChecks() {
   const results = await Promise.all([
     checkSupabaseAuth(),
     checkCloudDatabase(),
-    checkOrganizationCode(),
+    checkPersonalAccessCode(),
     checkAdminPortal(),
     checkQrApproval(),
     checkBlockedUserProtection()
@@ -47,17 +47,21 @@ async function checkCloudDatabase() {
   }
 }
 
-function checkOrganizationCode() {
-  const enabled = typeof ORGANIZATION_ACCESS_CODE !== "undefined" && ORGANIZATION_ACCESS_CODE === "5545";
-  return securityResult("organizationCode", enabled ? "Enabled" : "Missing", enabled ? "online" : "warning");
+async function checkPersonalAccessCode() {
+  if (!db) return securityResult("personalAccessCode", "Error", "danger");
+  try {
+    const { error } = await db.from("cards").select("access_code").limit(1);
+    return securityResult("personalAccessCode", error ? "Missing" : "Enabled", error ? "warning" : "online");
+  } catch (error) {
+    return securityResult("personalAccessCode", "Error", "danger");
+  }
 }
 
 function checkAdminPortal() {
   const protectedPortal =
-    typeof ADMIN_ACCESS_CODE !== "undefined" &&
-    ADMIN_ACCESS_CODE === "9999" &&
-    typeof ADMIN_EMAIL !== "undefined" &&
-    Boolean(ADMIN_EMAIL);
+    typeof ADMIN_ACCOUNTS !== "undefined" &&
+    ADMIN_ACCOUNTS["yusufakbulut522@gmail.com"] === "9999" &&
+    ADMIN_ACCOUNTS["muhammed25yusuf@gmail.com"] === "1010";
   return securityResult("adminPortal", protectedPortal ? "Protected" : "Not configured", protectedPortal ? "online" : "warning");
 }
 

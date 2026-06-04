@@ -1,6 +1,9 @@
-const ORGANIZATION_ACCESS_CODE = "5545";
-const ADMIN_ACCESS_CODE = "9999";
-const ADMIN_EMAIL = "yusufakbulut522@gmail.com";
+const ADMIN_ACCOUNTS = {
+  "yusufakbulut522@gmail.com": "9999",
+  "muhammed25yusuf@gmail.com": "1010"
+};
+const ADMIN_EMAILS = Object.keys(ADMIN_ACCOUNTS);
+const ADMIN_EMAIL = ADMIN_EMAILS[0];
 const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "security"];
 const ACCESS_RESTRICTED_MESSAGE = "Administrator access required.";
 
@@ -56,7 +59,7 @@ function setSessionInfo(user) {
 }
 
 function getUserRole(user) {
-  return user?.email?.toLowerCase() === ADMIN_EMAIL ? "admin" : "student";
+  return ADMIN_EMAILS.includes(user?.email?.trim().toLowerCase()) ? "admin" : "student";
 }
 
 function isAdminUser(user) {
@@ -113,15 +116,15 @@ function initAuth() {
   $("userLoginForm")?.addEventListener("submit", userLogin);
   $("adminLoginForm")?.addEventListener("submit", adminLogin);
   $("registerForm")?.addEventListener("submit", register);
-  $("organizationAccessCode")?.addEventListener("input", sanitizeOrganizationAccessCode);
-  $("adminAccessCode")?.addEventListener("input", sanitizeOrganizationAccessCode);
+  $("personalAccessCode")?.addEventListener("input", sanitizeAccessCode);
+  $("adminAccessCode")?.addEventListener("input", sanitizeAccessCode);
 }
 
 function initLoginPage() {
   initAuth();
 }
 
-function sanitizeOrganizationAccessCode(event) {
+function sanitizeAccessCode(event) {
   event.target.value = event.target.value.replace(/\D/g, "").slice(0, 4);
 }
 
@@ -138,18 +141,14 @@ function showAuthRedirectMessage() {
 
 async function userLogin(event) {
   event.preventDefault();
-  const code = $("organizationAccessCode")?.value.trim() || "";
+  const code = $("personalAccessCode")?.value.trim() || "";
   const email = $("userLoginEmail").value.trim().toLowerCase();
   if (!code) {
     await logActivity("user_login_failed", { email, location: "user_login_failed" });
-    return setMessage("authMessage", "Please enter organization access code.", "error");
-  }
-  if (code !== ORGANIZATION_ACCESS_CODE) {
-    await logActivity("user_login_failed", { email, location: "user_login_failed" });
-    return setMessage("authMessage", "Invalid organization access code.", "error");
+    return setMessage("authMessage", "Please enter personal access code.", "error");
   }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
-  if (email === ADMIN_EMAIL) {
+  if (ADMIN_EMAILS.includes(email)) {
     await logActivity("user_login_failed", { email, location: "user_login_failed" });
     return setMessage("authMessage", "Please use Admin Login.", "error");
   }
@@ -165,7 +164,17 @@ async function userLogin(event) {
   }
   try {
     const user = await getCurrentUser();
-    const card = await ensureUserCard(user);
+    const card = await getUserCard(user);
+    if (!card?.access_code) {
+      await logActivity("user_login_failed", { email: user.email, location: "user_login_failed" });
+      await db.auth.signOut();
+      return setMessage("authMessage", "No access code assigned. Contact administrator.", "error");
+    }
+    if (card.access_code !== code) {
+      await logActivity("user_login_failed", { email: user.email, uid: card.uid, location: "user_login_failed" });
+      await db.auth.signOut();
+      return setMessage("authMessage", "Invalid personal access code.", "error");
+    }
     if (card?.status === "blocked") {
       await logActivity("blocked_user_login_attempt", { email: user.email, uid: card.uid, location: "blocked_user_login_attempt" });
       await db.auth.signOut();
@@ -182,20 +191,21 @@ async function userLogin(event) {
 async function adminLogin(event) {
   event.preventDefault();
   const email = $("adminLoginEmail").value.trim().toLowerCase();
-  const expectedAdminEmail = ADMIN_EMAIL.trim().toLowerCase();
+  const expectedAdminEmail = email;
+  const expectedAdminCode = ADMIN_ACCOUNTS[email];
   const code = $("adminAccessCode")?.value.trim() || "";
-  const codeMatches = code === ADMIN_ACCESS_CODE;
+  const codeMatches = code === expectedAdminCode;
   console.log("[SmartPass] Admin login input email:", email);
-  console.log("[SmartPass] Admin login expected admin email:", expectedAdminEmail);
+  console.log("[SmartPass] Admin login expected admin email:", expectedAdminEmail || "-");
   console.log("[SmartPass] Admin login code match:", codeMatches);
 
+  if (!expectedAdminCode) {
+    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
+    return setMessage("authMessage", "Access denied", "error");
+  }
   if (!codeMatches) {
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
     return setMessage("authMessage", "Invalid admin code", "error");
-  }
-  if (email !== expectedAdminEmail) {
-    await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
-    return setMessage("authMessage", "Access denied", "error");
   }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
 
@@ -231,7 +241,7 @@ async function register(event) {
   if (!isValidEmail(email)) return setMessage("authMessage", "Please enter a valid email address.", "error");
   if (password.length < 6) return setMessage("authMessage", "Password must be at least 6 characters.", "error");
   if (password !== confirmPassword) return setMessage("authMessage", "Passwords do not match.", "error");
-  if (email.toLowerCase() === ADMIN_EMAIL) return setMessage("authMessage", "Administrator account cannot be created here.", "error");
+  if (ADMIN_EMAILS.includes(email.toLowerCase())) return setMessage("authMessage", "Administrator account cannot be created here.", "error");
 
   setMessage("authMessage", "Creating user account...");
   try {
@@ -247,13 +257,15 @@ async function register(event) {
     const user = data.user;
     if (!user) return setMessage("authMessage", "Registration failed. User record was not returned.", "error");
 
+    const accessCode = await generateUniquePersonalAccessCode();
     const { error: insertError } = await supabaseClient.from("cards").insert({
       user_id: user.id,
       email: email,
       full_name: fullName,
       uid: generateUid(),
       role: "student",
-      status: "active"
+      status: "active",
+      access_code: accessCode
     });
 
     if (insertError) {
@@ -263,11 +275,14 @@ async function register(event) {
       return setMessage("authMessage", insertError.message, "error");
     }
 
-    await logActivity("user_register_success", { email, location: "user_register_success" });
+    const card = await getUserCard(user);
+    await logActivity("user_register_success", { email, uid: card?.uid, location: "user_register_success" });
     const sessionUser = await getCurrentUser();
     if (sessionUser) await db.auth.signOut();
-    sessionStorage.setItem("authMessage", "Registration successful. Please login.");
-    window.location.href = "user-login.html";
+    setMessage("authMessage", `Registration successful. Your personal access code is: ${accessCode}. Save this code. You will need it when logging in.`);
+    setTimeout(() => {
+      window.location.href = "user-login.html";
+    }, 8000);
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");
   }
