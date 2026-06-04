@@ -75,6 +75,14 @@ async function submitAccessRequest(event) {
 
   setMessage("accessRequestMessage", "Submitting request...");
   try {
+    const card = await fetchCardByEmail(email);
+    if (!card) {
+      return setMessage("accessRequestMessage", "No registered account was found for this email. Please register before requesting an access code.", "error");
+    }
+    const pendingRequest = await fetchPendingAccessRequestByEmail(email);
+    if (pendingRequest) {
+      return setMessage("accessRequestMessage", "You already have a pending access code request.", "error");
+    }
     await createAccessRequest({ full_name: fullName, email, reason });
     event.target.reset();
     setMessage("accessRequestMessage", "Your request has been submitted. An administrator will review it.");

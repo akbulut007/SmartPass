@@ -256,6 +256,27 @@ async function createAccessRequest(record) {
   if (error) throw error;
 }
 
+async function fetchCardByEmail(email) {
+  const { data, error } = await db
+    .from("cards")
+    .select("id,email")
+    .eq("email", email)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+async function fetchPendingAccessRequestByEmail(email) {
+  const { data, error } = await db
+    .from("access_requests")
+    .select("id,email,status")
+    .eq("email", email)
+    .eq("status", "pending")
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 async function fetchAccessRequests() {
   const { data, error } = await db
     .from("access_requests")
