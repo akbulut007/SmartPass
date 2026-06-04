@@ -27,11 +27,16 @@
         <span id="approveStatusMark">...</span>
       </div>
       <div class="approve-session-box">
+        <div><span>Full Name</span><strong id="mobileCardName">Loading</strong></div>
+        <div><span>Email</span><strong id="mobileCardEmail">-</strong></div>
+        <div><span>UID</span><strong id="mobileCardUid">-</strong></div>
         <div><span>Request Status</span><strong id="mobileSessionStatus">Loading</strong></div>
+        <div><span>Time Remaining</span><strong id="mobileSessionCountdown">--:--</strong></div>
       </div>
       <strong id="mobileSessionId" hidden>-</strong>
       <p id="mobileApprovalMessage">Loading approval session...</p>
-      <div class="approve-actions">
+      <a id="adminLoginLink" class="primary-btn approve-login-link" href="admin-login.html" hidden>Go to Admin Login</a>
+      <div id="approveActions" class="approve-actions" hidden>
         <button id="mobileApproveBtn" class="primary-btn approve-button" type="button">APPROVE ACCESS</button>
         <button id="mobileRejectBtn" class="danger-btn approve-button" type="button">REJECT ACCESS</button>
       </div>

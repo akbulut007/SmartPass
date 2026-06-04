@@ -617,17 +617,6 @@ h1 { margin: 0; font-size: 42px; line-height: 1.1; color: #fff; text-shadow: 0 0
 .approval-open-link[hidden] {
   display: none;
 }
-.simulation-actions {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin: 8px 0 4px;
-}
-.simulation-actions button {
-  min-height: 52px;
-  border-radius: 14px;
-}
 .approval-panel {
   display: grid;
   justify-items: center;
@@ -952,7 +941,7 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
   padding: 18px;
 }
 .approve-shell {
-  width: min(460px, 100%);
+  width: min(560px, 100%);
 }
 .approve-panel {
   display: grid;
@@ -996,6 +985,7 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
   width: 100%;
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .approve-session-box div {
   padding: 14px;
@@ -1011,6 +1001,7 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
   margin-bottom: 6px;
 }
 .approve-session-box strong {
+  display: block;
   overflow-wrap: anywhere;
 }
 .approve-button {
@@ -1020,8 +1011,10 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
 .approve-actions {
   width: 100%;
   display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+.approve-actions[hidden] { display: none; }
 .approve-panel.waiting { border-color: rgba(255, 200, 87, 0.42); }
 .approve-panel.approved {
   border-color: rgba(50,245,155,.62);
@@ -1141,8 +1134,7 @@ tbody tr:hover { background: rgba(255,255,255,.035); }
   .auth-body { padding: 16px; }
   .auth-visual, .auth-card, .glass-panel, .identity-card, .landing-hero { padding: 20px; border-radius: 16px; }
   .auth-visual h1, .landing-hero h1, h1 { font-size: 30px; line-height: 1.12; }
-  .stats-grid, .card-data, .scan-details, .session-meta, .breakdown-grid { grid-template-columns: 1fr; }
-  .simulation-actions { grid-template-columns: 1fr; }
+  .stats-grid, .card-data, .scan-details, .session-meta, .breakdown-grid, .approve-session-box, .approve-actions { grid-template-columns: 1fr; }
   .sidebar nav { grid-template-columns: 1fr 1fr; }
   .page-header { align-items: flex-start; flex-direction: column; }
   .signal-grid { display: none; }

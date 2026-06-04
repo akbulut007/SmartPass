@@ -115,6 +115,7 @@ async function updateApprovalSession(sessionId, update) {
     .from("approval_sessions")
     .update(update)
     .eq("id", sessionId)
+    .eq("status", "waiting")
     .select("id,status,uid,user_id,created_at,expires_at,device,approved_at")
     .single();
   if (error) throw error;
@@ -178,13 +179,13 @@ async function fetchLogs() {
   return getLogs();
 }
 
-async function insertAccessLog(session, card, result, eventType = DEFAULT_LOCATION) {
+async function insertAccessLog(session, card, result, eventType = DEFAULT_LOCATION, deviceLabel = getDeviceLabel()) {
   const row = {
     uid: session?.uid || card?.uid || "-",
     card_uid: session?.uid || card?.uid || "-",
     email: card?.email || "-",
     result,
-    device: getDeviceLabel(),
+    device: deviceLabel,
     location: eventType
   };
   const { error } = await db.from("access_logs").insert(row);

@@ -5,6 +5,8 @@ var currentApprovalCard = null;
 var currentApprovalUrl = "";
 var isApprovalPollingActive = false;
 var isApprovalPollInFlight = false;
+var mobileApprovalSession = null;
+var mobileApprovalCard = null;
 
 function initMyIdentity(user) {
   return loadMyCard(user);
@@ -19,8 +21,8 @@ async function loadMyCard(user) {
     currentApprovalCard = card;
     currentApprovalSession = session;
     renderApprovalQr(session, card);
-    bindSimulationControls();
-    setApprovalState("waiting", "Waiting", "", "");
+    bindApprovalOpenControls();
+    setApprovalState("waiting", "Waiting", "Waiting for administrator approval.", `Session expires in: ${formatDuration(new Date(session.expires_at).getTime() - Date.now())}`);
     startCountdown(session);
     startApprovalPolling(session.id);
   } catch (error) {
@@ -39,9 +41,7 @@ function renderIdentityCard(card) {
   $("cardStatusDetail").textContent = title(card.status);
 }
 
-function bindSimulationControls() {
-  $("simulateApproveBtn")?.addEventListener("click", () => simulateDesktopDecision("approved"));
-  $("simulateRejectBtn")?.addEventListener("click", () => simulateDesktopDecision("rejected"));
+function bindApprovalOpenControls() {
   $("approvalOpenLink")?.addEventListener("click", openApprovalPage);
   $("qrImage")?.addEventListener("click", openApprovalPage);
   $("qrImage")?.addEventListener("keydown", (event) => {
@@ -50,46 +50,6 @@ function bindSimulationControls() {
       openApprovalPage();
     }
   });
-}
-
-async function simulateDesktopDecision(result) {
-  if (!currentApprovalSession?.id) {
-    showPageError("Session could not be created.");
-    return;
-  }
-  disableSimulationButtons();
-  const isApproved = result === "approved";
-  try {
-    const update = {
-      status: result,
-      device: "Desktop Simulation",
-      approved_at: new Date().toISOString()
-    };
-    const updatedSession = await updateApprovalSession(currentApprovalSession.id, update);
-    if (updatedSession?.status !== result) throw new Error("Database update failed.");
-    currentApprovalSession = updatedSession;
-    await insertAccessLog(updatedSession, currentApprovalCard, result, isApproved ? "simulate_approval" : "simulate_reject");
-    stopTimers();
-    if (isApproved) {
-      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Verified");
-    } else {
-      setApprovalState("rejected", "ACCESS DENIED", "", "");
-    }
-  } catch (error) {
-    enableSimulationButtons();
-    showPageError(readableDbError(error));
-    console.error("[SmartPass] Desktop simulation failed", error);
-  }
-}
-
-function disableSimulationButtons() {
-  if ($("simulateApproveBtn")) $("simulateApproveBtn").disabled = true;
-  if ($("simulateRejectBtn")) $("simulateRejectBtn").disabled = true;
-}
-
-function enableSimulationButtons() {
-  if ($("simulateApproveBtn")) $("simulateApproveBtn").disabled = false;
-  if ($("simulateRejectBtn")) $("simulateRejectBtn").disabled = false;
 }
 
 function startApprovalPolling(sessionId) {
@@ -108,23 +68,24 @@ async function checkApprovalStatus(sessionId) {
     if (!session) throw new Error("Approval session was not found.");
     if (session.status === "waiting" && isExpired(session)) {
       await expireSession(session);
-      setApprovalState("expired", "SESSION EXPIRED", "", "");
+      setApprovalState("expired", "Expired", "This session has expired.", "");
       stopTimers();
       return;
     }
     if (session.status === "approved") {
       currentApprovalSession = session;
-      setApprovalState("approved", "SUCCESS", "ACCESS APPROVED", "Verified");
+      setApprovalState("approved", "Approved", "Administrator approved this session.", "Access approved.");
       stopTimers();
     } else if (session.status === "rejected") {
       currentApprovalSession = session;
-      setApprovalState("rejected", "ACCESS DENIED", "", "");
+      setApprovalState("rejected", "Rejected", "Administrator rejected this session.", "Access rejected.");
       stopTimers();
     } else if (session.status === "expired") {
-      setApprovalState("expired", "SESSION EXPIRED", "", "");
+      setApprovalState("expired", "Expired", "This session has expired.", "");
       stopTimers();
     } else {
-      setApprovalState("waiting", "Waiting", "", "");
+      const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
+      setApprovalState("waiting", "Waiting", "Waiting for administrator approval.", `Session expires in: ${formatDuration(remaining)}`);
     }
   } catch (error) {
     const message = readableDbError(error);
@@ -140,6 +101,7 @@ function startCountdown(session) {
   const tick = () => {
     const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
     if ($("sessionCountdown")) $("sessionCountdown").textContent = formatDuration(remaining);
+    if ($("approvalSubdetail") && session.status === "waiting") $("approvalSubdetail").textContent = `Session expires in: ${formatDuration(remaining)}`;
     if (remaining <= 0) clearInterval(countdownTimer);
   };
   tick();
@@ -153,7 +115,8 @@ async function expireSession(session) {
     .eq("id", session.id)
     .eq("status", "waiting");
   if (error) throw error;
-  await insertAccessLog(session, null, "expired", "qr_approval_expired");
+  const card = session?.uid ? await fetchCardByUid(session.uid) : null;
+  await insertAccessLog(session, card, "expired", "qr_approval_expired");
 }
 
 function setApprovalState(state, titleText, detailText, subdetailText = "") {
@@ -175,7 +138,6 @@ function setApprovalState(state, titleText, detailText, subdetailText = "") {
   document.body.classList.toggle("access-expired", state === "expired");
   if (state !== "waiting") document.body.classList.remove("access-waiting");
   if (state === "waiting") document.body.classList.add("access-waiting");
-  if (["approved", "rejected", "expired"].includes(state)) disableSimulationButtons();
 }
 
 async function initMobileApproval() {
@@ -184,6 +146,7 @@ async function initMobileApproval() {
   if (!db) return setMobileApprovalState("rejected", "Offline", "Service unavailable.", "!");
 
   $("mobileSessionId").textContent = sessionId;
+  disableMobileButtons();
   $("mobileApproveBtn")?.addEventListener("click", () => completeMobileSession(sessionId, "approved"));
   $("mobileRejectBtn")?.addEventListener("click", () => completeMobileSession(sessionId, "rejected"));
   await loadMobileApprovalSession(sessionId);
@@ -196,29 +159,81 @@ async function loadMobileApprovalSession(sessionId) {
       disableMobileButtons();
       return setMobileApprovalState("rejected", "Session not found", "Invalid or expired request.", "!");
     }
+    mobileApprovalSession = session;
+    mobileApprovalCard = await fetchCardByUid(session.uid);
+    renderMobileApprovalIdentity(mobileApprovalCard, session);
     $("mobileSessionStatus").textContent = title(normalizeResult(session.status));
     if (session.status === "waiting" && isExpired(session)) {
       await expireSession(session);
       disableMobileButtons();
-      return setMobileApprovalState("expired", "SESSION EXPIRED", "This approval request has expired.", "--");
+      return setMobileApprovalState("expired", "Expired", "This session has expired.", "--");
     }
     if (session.status === "approved") {
       disableMobileButtons();
-      return setMobileApprovalState("approved", "ACCESS CONFIRMED", "Already approved.", "OK");
+      return setMobileApprovalState("approved", "Approved", "This session was already approved.", "OK");
     }
     if (session.status === "rejected") {
       disableMobileButtons();
-      return setMobileApprovalState("rejected", "ACCESS DENIED", "Request rejected.", "NO");
+      return setMobileApprovalState("rejected", "Rejected", "This session was rejected.", "NO");
     }
     if (session.status === "expired") {
       disableMobileButtons();
-      return setMobileApprovalState("expired", "SESSION EXPIRED", "This approval request has expired.", "--");
+      return setMobileApprovalState("expired", "Expired", "This session has expired.", "--");
     }
-    setMobileApprovalState("waiting", "Waiting", "Approve or reject this request.", "QR");
+    await authorizeMobileApprovalControls();
   } catch (error) {
     disableMobileButtons();
     setMobileApprovalState("rejected", "Load failed", readableDbError(error), "!");
   }
+}
+
+function renderMobileApprovalIdentity(card, session) {
+  if ($("mobileCardName")) $("mobileCardName").textContent = card?.full_name || "-";
+  if ($("mobileCardEmail")) $("mobileCardEmail").textContent = card?.email || "-";
+  if ($("mobileCardUid")) $("mobileCardUid").textContent = card?.uid || session?.uid || "-";
+  if ($("mobileSessionCountdown")) $("mobileSessionCountdown").textContent = formatDuration(Math.max(0, new Date(session.expires_at).getTime() - Date.now()));
+  startMobileCountdown(session);
+}
+
+function startMobileCountdown(session) {
+  if (countdownTimer) clearInterval(countdownTimer);
+  const tick = async () => {
+    const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
+    if ($("mobileSessionCountdown")) $("mobileSessionCountdown").textContent = formatDuration(remaining);
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+      if (mobileApprovalSession?.status === "waiting") {
+        await expireSession(mobileApprovalSession);
+        mobileApprovalSession.status = "expired";
+        disableMobileButtons();
+        setMobileApprovalState("expired", "Expired", "This session has expired.", "--");
+      }
+    }
+  };
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+async function authorizeMobileApprovalControls() {
+  const user = await getCurrentUser();
+  if (!user) {
+    disableMobileButtons();
+    if ($("adminLoginLink")) $("adminLoginLink").hidden = false;
+    return setMobileApprovalState("waiting", "Waiting", "Admin authorization required. Please log in as an administrator to approve this session.", "QR");
+  }
+  const isAllowedAdmin = ["yusufakbulut522@gmail.com", "muhammed25yusuf@gmail.com"].includes(user.email?.trim().toLowerCase());
+  if (!isAllowedAdmin) {
+    disableMobileButtons();
+    return setMobileApprovalState("rejected", "Access denied", "Access denied. Only administrators can approve sessions.", "!");
+  }
+  if (isExpired(mobileApprovalSession)) {
+    await expireSession(mobileApprovalSession);
+    disableMobileButtons();
+    return setMobileApprovalState("expired", "Expired", "This session has expired.", "--");
+  }
+  if ($("adminLoginLink")) $("adminLoginLink").hidden = true;
+  enableMobileButtons();
+  setMobileApprovalState("waiting", "Waiting", "Review the identity details before approving or rejecting this session.", "QR");
 }
 
 async function completeMobileSession(sessionId, result) {
@@ -230,34 +245,37 @@ async function completeMobileSession(sessionId, result) {
     if (session.status !== "waiting") throw new Error(`Session is already ${session.status}.`);
     if (isExpired(session)) {
       await expireSession(session);
-      return setMobileApprovalState("expired", "SESSION EXPIRED", "This approval request has expired.", "--");
+      disableMobileButtons();
+      return setMobileApprovalState("expired", "Expired", "This session has expired.", "--");
     }
+    const user = await getCurrentUser();
+    const isAllowedAdmin = ["yusufakbulut522@gmail.com", "muhammed25yusuf@gmail.com"].includes(user?.email?.trim().toLowerCase());
+    if (!isAllowedAdmin) throw new Error("Access denied. Only administrators can approve sessions.");
     const card = await fetchCardByUid(session.uid);
-    const update = {
-      status: result,
-      device: getDeviceLabel(),
-      approved_at: new Date().toISOString()
-    };
+    const update = { status: result };
+    if (result === "approved") update.approved_at = new Date().toISOString();
     const updatedSession = await updateApprovalSession(sessionId, update);
     if (updatedSession?.status !== result) throw new Error("Database update failed.");
-    await insertAccessLog(updatedSession, card, result, result === "approved" ? "qr_approval_success" : "qr_approval_rejected");
+    await insertAccessLog(updatedSession, card, result, result === "approved" ? "qr_approval_success" : "qr_approval_rejected", result === "approved" ? "Admin approval" : "Admin rejection");
     if (result === "approved") {
-      setMobileApprovalState("approved", "ACCESS CONFIRMED", "Approved.", "OK");
+      setMobileApprovalState("approved", "Approved", "Session approved.", "OK");
     } else {
-      setMobileApprovalState("rejected", "ACCESS DENIED", "Rejected.", "NO");
+      setMobileApprovalState("rejected", "Rejected", "Session rejected.", "NO");
     }
   } catch (error) {
-    enableMobileButtons();
+    disableMobileButtons();
     setMobileApprovalState("rejected", "Approval failed", readableDbError(error), "!");
   }
 }
 
 function disableMobileButtons() {
+  if ($("approveActions")) $("approveActions").hidden = true;
   if ($("mobileApproveBtn")) $("mobileApproveBtn").disabled = true;
   if ($("mobileRejectBtn")) $("mobileRejectBtn").disabled = true;
 }
 
 function enableMobileButtons() {
+  if ($("approveActions")) $("approveActions").hidden = false;
   if ($("mobileApproveBtn")) $("mobileApproveBtn").disabled = false;
   if ($("mobileRejectBtn")) $("mobileRejectBtn").disabled = false;
 }

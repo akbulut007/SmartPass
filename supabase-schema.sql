@@ -150,11 +150,24 @@ to anon, authenticated
 using (true);
 
 drop policy if exists "qr clients can approve sessions" on public.approval_sessions;
-create policy "qr clients can approve sessions"
+drop policy if exists "admins can approve sessions" on public.approval_sessions;
+create policy "admins can approve sessions"
+on public.approval_sessions for update
+to authenticated
+using (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+)
+with check (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+  and status in ('waiting', 'approved', 'rejected', 'expired')
+);
+
+drop policy if exists "clients can expire sessions" on public.approval_sessions;
+create policy "clients can expire sessions"
 on public.approval_sessions for update
 to anon, authenticated
-using (true)
-with check (status in ('waiting', 'approved', 'rejected', 'expired'));
+using (status = 'waiting')
+with check (status = 'expired');
 
 drop policy if exists "qr clients can create access logs" on public.access_logs;
 create policy "qr clients can create access logs"
