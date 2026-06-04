@@ -9,8 +9,8 @@ function getApproveBaseUrl() {
 function generateQRCode(approvalUrl, card) {
   $("qrImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(approvalUrl)}`;
   $("qrImage").hidden = false;
-  $("qrImage").tabIndex = 0;
-  $("qrImage").title = "Open approval page";
+  $("qrImage").removeAttribute("tabindex");
+  $("qrImage").title = "Scan this QR code";
   if (card) $("qrImage").alt = `QR approval link for ${card.full_name}`;
 }
 

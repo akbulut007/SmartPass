@@ -591,13 +591,7 @@ h1 { margin: 0; font-size: 42px; line-height: 1.1; color: #fff; text-shadow: 0 0
   box-shadow: 0 12px 28px rgba(0,0,0,.32), 0 0 0 5px rgba(124,58,237,.08), 0 0 34px rgba(249,115,22,.14);
   transition: transform .22s ease, box-shadow .22s ease;
 }
-.qr-image:not([hidden]) { cursor: pointer; }
-.qr-image:not([hidden]):hover,
-.qr-image:not([hidden]):focus {
-  transform: translateY(-2px) scale(1.015);
-  box-shadow: 0 14px 32px rgba(0,0,0,.36), 0 0 0 5px rgba(249,115,22,.10), 0 0 34px rgba(124,58,237,.2);
-  outline: 0;
-}
+.qr-image:not([hidden]) { cursor: default; }
 .qr-instruction {
   margin: 0;
   color: var(--muted) !important;

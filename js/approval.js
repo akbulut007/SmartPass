@@ -43,13 +43,6 @@ function renderIdentityCard(card) {
 
 function bindApprovalOpenControls() {
   $("approvalOpenLink")?.addEventListener("click", openApprovalPage);
-  $("qrImage")?.addEventListener("click", openApprovalPage);
-  $("qrImage")?.addEventListener("keydown", (event) => {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      openApprovalPage();
-    }
-  });
 }
 
 function startApprovalPolling(sessionId) {
