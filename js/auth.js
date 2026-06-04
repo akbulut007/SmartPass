@@ -279,11 +279,47 @@ async function register(event) {
     await logActivity("user_register_success", { email, uid: card?.uid, location: "user_register_success" });
     const sessionUser = await getCurrentUser();
     if (sessionUser) await db.auth.signOut();
-    setMessage("authMessage", `Registration successful. Your personal access code is: ${accessCode}. Save this code. You will need it when logging in.`);
+    renderRegisterSuccess(accessCode);
     setTimeout(() => {
       window.location.href = "user-login.html";
     }, 8000);
   } catch (error) {
     setMessage("authMessage", readableDbError(error), "error");
+  }
+}
+
+function renderRegisterSuccess(accessCode) {
+  setMessage("authMessage", "");
+  const card = $("registerSuccessCard");
+  if (!card) {
+    return setMessage("authMessage", `Registration successful. Your personal access code is: ${accessCode}. Save this code. You will need it when logging in.`);
+  }
+  card.hidden = false;
+  card.innerHTML = `
+    <div class="register-success-head">
+      <span class="register-success-check">✓</span>
+      <div>
+        <h3>Registration successful</h3>
+        <p>Your personal access code</p>
+      </div>
+    </div>
+    <div class="register-access-code">${escapeHtml(accessCode)}</div>
+    <p class="register-success-note">Save this code. You will need it when logging in.</p>
+    <div class="register-success-actions">
+      <button class="ghost-btn copy-code-btn" type="button" data-access-code="${escapeHtml(accessCode)}">Copy Code</button>
+      <span>Redirecting to login...</span>
+    </div>
+  `;
+  card.querySelector(".copy-code-btn")?.addEventListener("click", copyRegisterAccessCode);
+}
+
+async function copyRegisterAccessCode(event) {
+  const button = event.currentTarget;
+  const code = button.dataset.accessCode || "";
+  try {
+    await navigator.clipboard.writeText(code);
+    button.textContent = "Copied";
+  } catch (error) {
+    button.textContent = "Copy failed";
   }
 }
