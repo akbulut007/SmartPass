@@ -14,14 +14,6 @@ function generateQRCode(approvalUrl, card) {
   if (card) $("qrImage").alt = `QR approval link for ${card.full_name}`;
 }
 
-function openApprovalPage() {
-  if (!currentApprovalUrl) {
-    showPageError("Approval page link is not ready yet.");
-    return;
-  }
-  window.open(currentApprovalUrl, "_blank");
-}
-
 function renderApprovalQr(session, card) {
   if (!session?.id) throw new Error("Session could not be created.");
   const approvalUrl = buildApprovalUrl(session.id);
@@ -31,7 +23,4 @@ function renderApprovalQr(session, card) {
   if ($("approvalDevice")) $("approvalDevice").textContent = session.device || "Desktop";
   generateQRCode(approvalUrl, card);
   $("qrLink").textContent = approvalUrl;
-  if ($("approvalOpenLink")) {
-    $("approvalOpenLink").hidden = false;
-  }
 }

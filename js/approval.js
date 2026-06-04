@@ -21,7 +21,6 @@ async function loadMyCard(user) {
     currentApprovalCard = card;
     currentApprovalSession = session;
     renderApprovalQr(session, card);
-    bindApprovalOpenControls();
     setApprovalState("waiting", "Waiting", "Waiting for approval.", `Session expires in: ${formatDuration(new Date(session.expires_at).getTime() - Date.now())}`);
     startCountdown(session);
     startApprovalPolling(session.id);
@@ -39,10 +38,6 @@ function renderIdentityCard(card) {
   $("cardRole").textContent = title(card.role);
   $("cardStatus").textContent = title(card.status);
   $("cardStatusDetail").textContent = title(card.status);
-}
-
-function bindApprovalOpenControls() {
-  $("approvalOpenLink")?.addEventListener("click", openApprovalPage);
 }
 
 function startApprovalPolling(sessionId) {
@@ -278,7 +273,6 @@ function setCardLoadingState(text) {
   $("qrLink").textContent = "";
   $("qrImage").hidden = true;
   $("qrImage").removeAttribute("tabindex");
-  if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;
   if ($("sessionCountdown")) $("sessionCountdown").textContent = "--:--";
 }
 
@@ -292,5 +286,4 @@ function setCardErrorState(message) {
   $("qrLink").textContent = "QR cannot be generated until the identity record is available.";
   $("qrImage").hidden = true;
   $("qrImage").removeAttribute("tabindex");
-  if ($("approvalOpenLink")) $("approvalOpenLink").hidden = true;
 }
