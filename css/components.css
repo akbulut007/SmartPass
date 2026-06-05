@@ -1,4 +1,4 @@
-.glass-panel, .metric-card, .identity-card {
+.glass-panel, .metric-card {
   background:
     linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.018)),
     radial-gradient(circle at 0 0, rgba(124,58,237,0.16), transparent 18rem),
@@ -83,14 +83,6 @@ button:disabled { cursor: not-allowed; opacity: .58; transform: none !important;
 .event-card.expired { border-color: rgba(145,169,184,.35); }
 
 .event-card span, .event-card small { color: var(--muted); }
-
-.chip, .identity-chip {
-  width: 72px;
-  height: 52px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #f97316, #7c3aed);
-  margin: 60px 0 34px;
-}
 
 .badge { display: inline-flex; padding: 6px 10px; border-radius: 999px; font-weight: 900; font-size: 12px; }
 

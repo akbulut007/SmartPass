@@ -1,15 +1,3 @@
-@media (prefers-reduced-motion: reduce) {
-  .approval-panel,
-  .approval-icon,
-  .approval-icon:after,
-  #approvalStatus,
-  #approvalDetail,
-  #approvalSubdetail {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
 @media (max-width: 980px) {
   .auth-shell, .card-layout, .management-grid, .info-grid, .security-grid, .report-layout { grid-template-columns: 1fr; }
   .landing-actions { grid-template-columns: 1fr; }
