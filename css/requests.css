@@ -1,0 +1,39 @@
+.request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 300px;
+}
+
+.request-actions .ghost-btn {
+  min-height: 34px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.request-access-result {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.event-type {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: rgba(124,58,237,.09);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.event-type.approved { color: var(--green); background: rgba(50,245,155,.09); }
+
+.event-type.rejected { color: var(--red); background: rgba(255,95,122,.09); }
+
+.event-type.expired { color: var(--amber); background: rgba(255,200,87,.09); }

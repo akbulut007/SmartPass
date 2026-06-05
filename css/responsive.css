@@ -1,0 +1,41 @@
+@media (prefers-reduced-motion: reduce) {
+  .approval-panel,
+  .approval-icon,
+  .approval-icon:after,
+  #approvalStatus,
+  #approvalDetail,
+  #approvalSubdetail {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .auth-shell, .card-layout, .management-grid, .info-grid, .security-grid, .report-layout { grid-template-columns: 1fr; }
+  .landing-actions { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .sidebar { position: static; width: auto; min-height: auto; }
+  .sidebar nav { grid-template-columns: repeat(3, 1fr); }
+  .app-main { margin-left: 0; padding: 22px; }
+  .auth-visual { min-height: auto; }
+  h1 { font-size: 36px; }
+}
+
+@media (max-width: 620px) {
+  .auth-body { padding: 16px; }
+  .auth-visual, .auth-card, .glass-panel, .identity-card, .landing-hero { padding: 20px; border-radius: 16px; }
+  .auth-visual h1, .landing-hero h1, h1 { font-size: 30px; line-height: 1.12; }
+  .stats-grid, .card-data, .scan-details, .session-meta, .breakdown-grid, .approve-session-box, .approve-actions { grid-template-columns: 1fr; }
+  .user-search-bar { grid-template-columns: 1fr; }
+  .admin-filter-bar { grid-template-columns: 1fr; }
+  .quick-filter-group { justify-content: flex-start; }
+  .users-result-count { white-space: normal; }
+  .sidebar nav { grid-template-columns: 1fr 1fr; }
+  .page-header { align-items: flex-start; flex-direction: column; }
+  .signal-grid { display: none; }
+  .inline-field { grid-template-columns: 1fr; }
+  .qr-image { width: min(220px, 82vw); height: min(220px, 82vw); }
+  .approve-status-ring { width: 112px; height: 112px; }
+  .approve-status-ring span { width: 66px; height: 66px; }
+  .metric-card strong { font-size: 34px; }
+}

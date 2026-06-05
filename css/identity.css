@@ -1,0 +1,352 @@
+.identity-card {
+  min-height: 420px;
+  padding: 30px;
+  background:
+    linear-gradient(135deg, rgba(124,58,237,0.28), rgba(249,115,22,0.09)),
+    linear-gradient(160deg, rgba(24,17,48,.96), rgba(8,6,18,.96));
+  position: relative;
+  overflow: hidden;
+}
+
+.identity-card:after {
+  content: "QR";
+  position: absolute;
+  right: -24px;
+  bottom: -18px;
+  font-size: 124px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.035);
+}
+
+.card-top { display: flex; justify-content: space-between; color: var(--cyan); font-weight: 800; }
+
+.identity-chip {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.identity-card h2 { font-size: 32px; margin: 0 0 8px; }
+
+.identity-card p { color: var(--muted); margin: 0 0 28px; }
+
+.card-data { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; z-index: 1; }
+
+.card-data div { padding: 14px; border: 1px solid rgba(124,58,237,.28); border-radius: 12px; background: rgba(8,6,18,0.34); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
+
+.card-data span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+
+.qr-panel { display: grid; justify-items: center; text-align: center; align-content: start; }
+
+.qr-stage {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(124,58,237,.34);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(124,58,237,.10), rgba(249,115,22,.045));
+}
+
+.qr-image {
+  width: 240px;
+  height: 240px;
+  padding: 14px;
+  background: #fff;
+  border: 2px solid rgba(124,58,237,.72);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.32), 0 0 0 5px rgba(124,58,237,.08), 0 0 34px rgba(249,115,22,.14);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+
+.qr-image:not([hidden]) { cursor: default; }
+
+.qr-instruction {
+  margin: 0;
+  color: var(--muted) !important;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.qr-link { max-width: 100%; overflow-wrap: anywhere; font-size: 12px; color: var(--orange) !important; margin: 4px 0 0; }
+
+.approval-open-link {
+  display: inline-grid;
+  place-items: center;
+  min-height: 34px;
+  padding: 8px 14px;
+  margin-top: 0;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.approval-open-link[hidden] {
+  display: none;
+}
+
+.approval-panel {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  align-content: start;
+  position: relative;
+  overflow: hidden;
+  gap: 16px;
+  transition: border-color .35s ease, background .35s ease, transform .35s ease, box-shadow .35s ease;
+}
+
+.approval-panel.status-animate-approved { animation: approvalCardApproved 760ms cubic-bezier(.2,.75,.22,1) both; }
+
+.approval-panel.status-animate-rejected { animation: approvalCardRejected 760ms cubic-bezier(.2,.75,.22,1) both; }
+
+.approval-panel.status-animate-expired { animation: approvalCardExpired 720ms cubic-bezier(.2,.75,.22,1) both; }
+
+.approval-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+}
+
+.approval-header h2 { margin: 0; }
+
+.approval-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.055);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.approval-status-badge.waiting { color: var(--amber); border-color: rgba(255,200,87,.28); background: rgba(255,200,87,.08); }
+
+.approval-status-badge.approved { color: var(--green); border-color: rgba(50,245,155,.34); background: rgba(50,245,155,.1); }
+
+.approval-status-badge.rejected { color: var(--red); border-color: rgba(255,95,122,.34); background: rgba(255,95,122,.1); }
+
+.approval-status-badge.expired { color: var(--muted); border-color: rgba(145,169,184,.28); background: rgba(145,169,184,.08); }
+
+.approval-panel:before {
+  display: none;
+}
+
+.approval-panel h2 { margin: 4px 0 0; }
+
+.approval-panel .approval-header h2 { margin: 0; color: var(--text); }
+
+.approval-panel p:empty { display: none; }
+
+.approval-panel.waiting { border-color: rgba(124, 58, 237, 0.52); box-shadow: var(--shadow), 0 0 22px rgba(249,115,22,.08); }
+
+.approval-panel.waiting #approvalStatus { color: var(--amber); }
+
+.approval-panel.approved {
+  border-color: rgba(50, 245, 155, 0.62);
+  background: rgba(9, 64, 42, 0.82);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0,0,0,.24), 0 0 18px rgba(50,245,155,.16);
+}
+
+.approval-panel.approved #approvalStatus { color: var(--green); }
+
+.approval-panel.denied, .approval-panel.rejected {
+  border-color: rgba(255, 95, 122, 0.62);
+  background: rgba(80, 15, 28, 0.82);
+  box-shadow: 0 14px 34px rgba(0,0,0,.24), 0 0 18px rgba(255,95,122,.14);
+}
+
+.approval-panel.denied #approvalStatus, .approval-panel.rejected #approvalStatus { color: var(--red); }
+
+.approval-panel.expired {
+  border-color: rgba(145, 169, 184, 0.42);
+  background: rgba(12, 18, 24, 0.88);
+}
+
+.approval-panel.expired #approvalStatus { color: var(--muted); }
+
+.approval-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: #fff;
+  background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(249,115,22,.10));
+  font-weight: 900;
+  position: relative;
+  z-index: 1;
+  transition: color .24s ease, border-color .24s ease, background .24s ease, box-shadow .24s ease, transform .24s ease;
+}
+
+.approval-icon:after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: inherit;
+  opacity: 0;
+  transform: scale(.82);
+  z-index: -1;
+}
+
+.approval-icon.waiting { color: var(--amber); border-color: rgba(255,200,87,.45); }
+
+.approval-icon.approved { color: var(--green); border-color: rgba(50,245,155,.62); background: rgba(50,245,155,.12); box-shadow: var(--shadow-green); }
+
+.approval-icon.rejected, .approval-icon.denied { color: var(--red); border-color: rgba(255,95,122,.62); background: rgba(255,95,122,.12); box-shadow: var(--shadow-red); }
+
+.approval-icon.expired { color: var(--muted); border-color: rgba(145,169,184,.42); background: rgba(145,169,184,.08); }
+
+.status-animate-approved .approval-icon,
+.status-animate-rejected .approval-icon,
+.status-animate-expired .approval-icon { animation: approvalIconPop 680ms cubic-bezier(.2,.75,.22,1) both; }
+
+.status-animate-approved .approval-icon:after {
+  background: rgba(50,245,155,.18);
+  box-shadow: 0 0 34px rgba(50,245,155,.22);
+  animation: approvalPulse 760ms ease-out both;
+}
+
+.status-animate-rejected .approval-icon:after {
+  background: rgba(255,95,122,.18);
+  box-shadow: 0 0 34px rgba(255,95,122,.22);
+  animation: approvalPulse 760ms ease-out both;
+}
+
+.status-animate-expired .approval-icon:after {
+  background: rgba(255,200,87,.14);
+  box-shadow: 0 0 30px rgba(255,200,87,.18);
+  animation: approvalPulse 720ms ease-out both;
+}
+
+.status-animate-approved #approvalStatus,
+.status-animate-approved #approvalDetail,
+.status-animate-approved #approvalSubdetail,
+.status-animate-rejected #approvalStatus,
+.status-animate-rejected #approvalDetail,
+.status-animate-rejected #approvalSubdetail,
+.status-animate-expired #approvalStatus,
+.status-animate-expired #approvalDetail,
+.status-animate-expired #approvalSubdetail { animation: approvalTextFade 680ms ease both; }
+
+.session-meta {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+.session-meta div {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(8,6,18,.38);
+}
+
+.session-meta span {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.session-meta strong { overflow-wrap: anywhere; font-size: 12px; }
+
+.session-details {
+  width: 100%;
+  margin-top: 2px;
+  text-align: left;
+  border: 1px solid rgba(145,169,184,.18);
+  border-radius: 14px;
+  background: rgba(3, 9, 14, .26);
+}
+
+.session-details summary {
+  cursor: pointer;
+  padding: 13px 14px;
+  color: #d9edf2;
+  font-weight: 900;
+  list-style-position: inside;
+}
+
+.session-details[open] summary {
+  border-bottom: 1px solid rgba(145,169,184,.16);
+}
+
+.session-details .session-meta {
+  padding: 14px;
+  margin: 0;
+}
+
+.approval-url-detail {
+  margin: 0 14px 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+}
+
+.approval-url-detail span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.approval-subdetail {
+  color: var(--green) !important;
+  font-weight: 900;
+  margin: 0;
+}
+
+@keyframes panelSweep {
+  0%, 45% { transform: translateX(-120%); }
+  70%, 100% { transform: translateX(120%); }
+}
+
+@keyframes approvalCardApproved {
+  0% { transform: scale(.95); box-shadow: var(--shadow), 0 0 0 rgba(50,245,155,0); }
+  45% { transform: scale(1.012); box-shadow: var(--shadow), 0 0 42px rgba(50,245,155,.28); }
+  100% { transform: scale(1); box-shadow: 0 14px 34px rgba(0,0,0,.24), 0 0 18px rgba(50,245,155,.16); }
+}
+
+@keyframes approvalCardRejected {
+  0% { transform: scale(.95); box-shadow: var(--shadow), 0 0 0 rgba(255,95,122,0); }
+  45% { transform: scale(1.012); box-shadow: var(--shadow), 0 0 42px rgba(255,95,122,.26); }
+  100% { transform: scale(1); box-shadow: 0 14px 34px rgba(0,0,0,.24), 0 0 18px rgba(255,95,122,.14); }
+}
+
+@keyframes approvalCardExpired {
+  0% { transform: scale(.96); box-shadow: var(--shadow), 0 0 0 rgba(255,200,87,0); }
+  45% { transform: scale(1.008); box-shadow: var(--shadow), 0 0 34px rgba(255,200,87,.22); }
+  100% { transform: scale(1); box-shadow: var(--shadow), 0 0 14px rgba(255,200,87,.08); }
+}
+
+@keyframes approvalIconPop {
+  0% { opacity: .2; transform: scale(.72) rotate(-8deg); }
+  48% { opacity: 1; transform: scale(1.14) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes approvalPulse {
+  0% { opacity: .65; transform: scale(.78); }
+  100% { opacity: 0; transform: scale(1.42); }
+}
+
+@keyframes approvalTextFade {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
