@@ -169,6 +169,9 @@ function ensurePasswordResetModal() {
         <label>Email
           <input type="email" id="passwordResetEmail" required autocomplete="email" placeholder="name@example.com">
         </label>
+        <label>Personal Access Code
+          <input type="password" id="passwordResetAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter personal code">
+        </label>
         <button class="primary-btn" type="submit">Send Reset Link</button>
         <p id="passwordResetMessage" class="form-message" aria-live="polite"></p>
       </form>
@@ -179,6 +182,7 @@ function ensurePasswordResetModal() {
     button.addEventListener("click", closePasswordResetModal);
   });
   modal.querySelector("#passwordResetForm")?.addEventListener("submit", submitPasswordResetRequest);
+  modal.querySelector("#passwordResetAccessCode")?.addEventListener("input", sanitizeAccessCode);
   return modal;
 }
 
@@ -186,6 +190,7 @@ function openPasswordResetModal() {
   const modal = ensurePasswordResetModal();
   const loginEmail = $("userLoginEmail")?.value || $("adminLoginEmail")?.value || "";
   $("passwordResetEmail").value = loginEmail.trim().toLowerCase();
+  $("passwordResetAccessCode").value = "";
   setMessage("passwordResetMessage", "");
   modal.hidden = false;
   $("passwordResetEmail")?.focus();
@@ -199,16 +204,36 @@ function closePasswordResetModal() {
 async function submitPasswordResetRequest(event) {
   event.preventDefault();
   const email = $("passwordResetEmail")?.value.trim().toLowerCase() || "";
+  const accessCode = $("passwordResetAccessCode")?.value.trim() || "";
   if (!email) return setMessage("passwordResetMessage", "Please enter your email.", "error");
   if (!isValidEmail(email)) return setMessage("passwordResetMessage", "Please enter a valid email address.", "error");
+  if (!accessCode) return setMessage("passwordResetMessage", "Please enter your personal access code.", "error");
   if (!db) return setMessage("passwordResetMessage", "Configure Supabase first.", "error");
+
+  setMessage("passwordResetMessage", "Checking account...");
+  let card;
+  try {
+    card = await fetchCardByEmail(email);
+  } catch (error) {
+    return setMessage("passwordResetMessage", readableDbError(error), "error");
+  }
+  if (!card) return setMessage("passwordResetMessage", "No account found for this email.", "error");
+  if (card.access_code !== accessCode) return setMessage("passwordResetMessage", "Invalid personal access code.", "error");
+  if (card.status === "blocked") return setMessage("passwordResetMessage", "This account is blocked. Contact support.", "error");
+  if (card.status !== "active") return setMessage("passwordResetMessage", "This account is not active. Contact support.", "error");
+  if (document.body.dataset.page === "user-login" && card.role === "admin") {
+    return setMessage("passwordResetMessage", "Admins should use Admin Login recovery or contact system owner.", "error");
+  }
+  if (document.body.dataset.page === "admin-login" && card.role !== "admin") {
+    return setMessage("passwordResetMessage", "Use User Login recovery for this account.", "error");
+  }
 
   setMessage("passwordResetMessage", "Sending reset link...");
   const { error } = await db.auth.resetPasswordForEmail(email, {
     redirectTo: PASSWORD_RESET_REDIRECT_URL
   });
   if (error) return setMessage("passwordResetMessage", error.message, "error");
-  setMessage("passwordResetMessage", "Password reset link sent. Check your email.");
+  setMessage("passwordResetMessage", "Password reset link sent. Please check your email.");
 }
 
 function initResetPasswordPage() {
