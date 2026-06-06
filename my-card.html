@@ -49,6 +49,28 @@
       <div id="sessionInfo" class="session-pill">Checking session...</div>
     </header>
 
+    <section class="account-overview-shell">
+      <div class="account-overview-grid">
+        <article class="metric-card"><span>Total QR Events</span><strong id="accountTotalEvents">0</strong></article>
+        <article class="metric-card"><span>Approved</span><strong id="accountApprovedEvents">0</strong></article>
+        <article class="metric-card"><span>Rejected</span><strong id="accountRejectedEvents">0</strong></article>
+        <article class="metric-card"><span>Expired</span><strong id="accountExpiredEvents">0</strong></article>
+      </div>
+
+      <section class="glass-panel account-details-panel">
+        <div class="section-title"><h2>Account Overview</h2></div>
+        <div class="account-details-grid">
+          <div><span>Full Name</span><strong id="accountFullName">-</strong></div>
+          <div><span>Email</span><strong id="accountEmail">-</strong></div>
+          <div><span>UID</span><strong id="accountUid">-</strong></div>
+          <div><span>Role</span><strong id="accountRole">-</strong></div>
+          <div><span>Status</span><strong id="accountStatus">-</strong></div>
+          <div><span>Account Created Date</span><strong id="accountCreatedDate">-</strong></div>
+          <div><span>Last Approval Date</span><strong id="accountLastApprovalDate">Never</strong></div>
+        </div>
+      </section>
+    </section>
+
     <div class="identity-tabs" role="tablist" aria-label="My Identity tabs">
       <button id="qrApprovalTab" class="tab-button active" type="button" data-identity-tab="approval" role="tab" aria-selected="true" aria-controls="qrApprovalView">QR Approval</button>
       <button id="qrHistoryTab" class="tab-button" type="button" data-identity-tab="history" role="tab" aria-selected="false" aria-controls="qrHistoryView">My QR History</button>

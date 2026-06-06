@@ -49,6 +49,16 @@ function renderIdentityCard(card) {
   $("cardRole").textContent = title(card.role);
   $("cardStatus").textContent = title(card.status);
   $("cardStatusDetail").textContent = title(card.status);
+  renderAccountDetails(card);
+}
+
+function renderAccountDetails(card) {
+  setText("accountFullName", card.full_name || "-");
+  setText("accountEmail", card.email || "-");
+  setText("accountUid", card.uid || "-");
+  setText("accountRole", title(card.role || "-"));
+  setText("accountStatus", title(card.status || "-"));
+  setText("accountCreatedDate", card.created_at ? formatDate(card.created_at) : "-");
 }
 
 function bindIdentityTabs() {
@@ -89,6 +99,7 @@ function renderQrHistory(logs) {
   setText("qrHistoryRejected", counts.rejected);
   setText("qrHistoryExpired", counts.expired);
   setText("qrHistoryLast", logs[0] ? formatDate(logs[0].created_at) : "-");
+  renderAccountOverview(logs, counts);
 
   const table = $("qrHistoryTable");
   if (!table) return;
@@ -101,6 +112,15 @@ function renderQrHistory(logs) {
     </tr>
   `).join("") || `<tr><td colspan="4">No QR history yet.</td></tr>`;
   setMessage("qrHistoryMessage", logs.length ? `Showing ${logs.length} QR event${logs.length === 1 ? "" : "s"}.` : "No QR history yet.");
+}
+
+function renderAccountOverview(logs, counts) {
+  setText("accountTotalEvents", logs.length);
+  setText("accountApprovedEvents", counts.approved);
+  setText("accountRejectedEvents", counts.rejected);
+  setText("accountExpiredEvents", counts.expired);
+  const lastApproval = logs.find((log) => log.result === "approved");
+  setText("accountLastApprovalDate", lastApproval ? formatDate(lastApproval.created_at) : "Never");
 }
 
 function startApprovalPolling(sessionId) {
