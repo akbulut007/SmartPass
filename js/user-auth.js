@@ -1,3 +1,8 @@
+const USER_LOGIN_ADMIN_EMAILS = new Set([
+  "yusufakbulut522@gmail.com",
+  "muhammed25yusuf@gmail.com"
+]);
+
 async function userLogin(event) {
   event.preventDefault();
   const code = $("personalAccessCode")?.value.trim() || "";
@@ -16,6 +21,9 @@ async function userLogin(event) {
     return setMessage("authMessage", "Please enter personal access code.", "error");
   }
   if (!db) return setMessage("authMessage", "Configure Supabase first.", "error");
+  if (USER_LOGIN_ADMIN_EMAILS.has(email)) {
+    return rejectAdminUserLogin(email);
+  }
 
   setMessage("authMessage", "Signing in...");
   const { error } = await db.auth.signInWithPassword({
@@ -38,6 +46,22 @@ async function userLogin(event) {
     await db.auth.signOut();
     return setMessage("authMessage", readableDbError(error), "error");
   }
+}
+
+async function rejectAdminUserLogin(email) {
+  await logActivity("user_login_failed", { email, location: "admin_login_required" });
+  await db.auth.signOut();
+  renderAdminLoginRequiredMessage();
+}
+
+function renderAdminLoginRequiredMessage() {
+  const el = $("authMessage");
+  if (!el) return;
+  el.className = "form-message error";
+  el.innerHTML = `
+    <span>Admin accounts must use the Admin Login page.</span>
+    <a class="admin-portal-link" href="admin-login.html">Go to Admin Login</a>
+  `;
 }
 
 async function validatePersonalAccessCode(user, card, code, failedLocation) {
