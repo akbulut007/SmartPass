@@ -1,3 +1,48 @@
+.message-box-shell {
+  width: min(760px, 100%);
+}
+
+.message-box-card {
+  display: grid;
+  gap: 22px;
+  padding: 32px;
+}
+
+.message-box-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.message-box-header h1 {
+  margin-bottom: 10px;
+}
+
+.message-box-header p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.message-box-login {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid rgba(124, 58, 237, 0.24);
+  border-radius: 14px;
+  background: rgba(8, 6, 18, 0.32);
+}
+
+.message-inbox-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.message-inbox-panel[hidden] {
+  display: none;
+}
+
 .messages-panel {
   display: grid;
   gap: 14px;

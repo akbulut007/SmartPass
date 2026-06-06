@@ -8,16 +8,6 @@ async function fetchUserMessages(user) {
   return data || [];
 }
 
-async function fetchUnreadMessageCount(user) {
-  const { count, error } = await requireDb()
-    .from("messages")
-    .select("id", { count: "exact", head: true })
-    .eq("email", user.email)
-    .eq("is_read", false);
-  if (error) throw error;
-  return count || 0;
-}
-
 async function markMessageRead(messageId) {
   const { error } = await requireDb()
     .from("messages")
@@ -28,12 +18,9 @@ async function markMessageRead(messageId) {
 
 async function sendRequestReply(request, subject, message) {
   const card = await fetchCardByEmail(request.email);
-  if (!card?.user_id) {
-    throw new Error("No registered account found for this request email.");
-  }
 
   const { error } = await requireDb().from("messages").insert({
-    user_id: card.user_id,
+    user_id: card?.user_id || null,
     email: request.email,
     subject,
     message,

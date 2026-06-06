@@ -17,7 +17,6 @@
   <script defer src="js/database.js"></script>
   <script defer src="js/cards-service.js"></script>
   <script defer src="js/logs-service.js"></script>
-  <script defer src="js/messages-service.js"></script>
   <script defer src="js/requests-service.js"></script>
   <script defer src="js/sessions-service.js"></script>
   <script defer src="js/auth.js"></script>
@@ -36,7 +35,6 @@
     <a class="logo" href="dashboard.html"><span>QR</span>SmartPass</a>
     <nav>
       <a href="my-card.html" class="active">My Identity</a>
-      <a href="messages.html">My Messages</a>
     </nav>
     <button id="logoutBtn" class="ghost-btn">Logout</button>
   </aside>
@@ -64,13 +62,6 @@
           <div><span>User Role</span><strong id="cardRole">-</strong></div>
           <div><span>Status</span><strong id="cardStatusDetail">-</strong></div>
         </div>
-        <a class="identity-message-shortcut" href="messages.html">
-          <span>
-            <strong>My Messages</strong>
-            <small>View admin replies</small>
-          </span>
-          <b id="identityUnreadCount">Unread: 0</b>
-        </a>
       </article>
 
       <article id="approvalPanel" class="approval-panel glass-panel waiting">

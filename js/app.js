@@ -12,6 +12,7 @@ async function init() {
     if (typeof initAccessRequestWidgets === "function") initAccessRequestWidgets();
     return;
   }
+  if (page === "message-box") return initMessageBoxPage();
   if (page === "approve") return initMobileApproval();
   if (page === "scan") return initMobileApproval();
 
@@ -20,12 +21,10 @@ async function init() {
   if (!enforceRoleAccess(user, page)) return;
   renderRoleNavigation(user);
   setSessionInfo(user);
-  updateMessageBadges(user);
   showAccessRestrictionMessage();
 
   if (page === "dashboard") return initDashboard();
   if (page === "my-card") return initMyIdentity(user);
-  if (page === "messages") return initMessagesPage(user);
   if (page === "users") return initUsers();
   if (page === "logs") return initLogs();
   if (page === "reports") return initReports();

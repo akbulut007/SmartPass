@@ -1,16 +1,42 @@
 var messagesCache = [];
-var activeMessagesUser = null;
+var messageBoxUser = null;
 
-async function initMessagesPage(user) {
-  if (document.body.dataset.page !== "messages") return;
-  activeMessagesUser = user;
-  $("refreshMessagesBtn")?.addEventListener("click", () => loadMessages(user));
+function initMessageBoxPage() {
+  if (document.body.dataset.page !== "message-box") return;
+  $("messageBoxLoginForm")?.addEventListener("submit", loginToMessageBox);
+  $("refreshMessagesBtn")?.addEventListener("click", () => loadMessageBoxMessages(messageBoxUser));
   $("messagesList")?.addEventListener("click", openMessageCard);
-  return loadMessages(user);
+  $("backToUserLoginLink")?.addEventListener("click", backToUserLogin);
 }
 
-async function loadMessages(user) {
-  setMessage("messagesStatus", "Loading...");
+async function backToUserLogin(event) {
+  event.preventDefault();
+  if (db) await db.auth.signOut();
+  window.location.href = "user-login.html";
+}
+
+async function loginToMessageBox(event) {
+  event.preventDefault();
+  const email = $("messageBoxEmail")?.value.trim().toLowerCase() || "";
+  const password = $("messageBoxPassword")?.value || "";
+  if (!email) return setMessage("messagesStatus", "Please enter your email.", "error");
+  if (!password) return setMessage("messagesStatus", "Please enter your password.", "error");
+  if (!db) return setMessage("messagesStatus", "Configure Supabase first.", "error");
+
+  setMessage("messagesStatus", "Opening message box...");
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) return setMessage("messagesStatus", error.message, "error");
+
+  messageBoxUser = data.user || await getCurrentUser();
+  if (!messageBoxUser) return setMessage("messagesStatus", "Login failed. User record was not returned.", "error");
+  $("messageBoxLoginForm").hidden = true;
+  $("messageInboxPanel").hidden = false;
+  await loadMessageBoxMessages(messageBoxUser);
+}
+
+async function loadMessageBoxMessages(user) {
+  if (!user) return;
+  setMessage("messagesStatus", "Loading messages...");
   messagesCache = await safeDataLoad(() => fetchUserMessages(user), []);
   renderMessages();
 }
@@ -64,7 +90,6 @@ async function openMessageCard(event) {
       badge.className = "badge reviewed";
       badge.textContent = "READ";
     }
-    updateMessageBadges(activeMessagesUser);
   } catch (error) {
     showPageError(readableDbError(error));
   }
