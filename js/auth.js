@@ -1,7 +1,7 @@
 const ADMIN_ONLY_PAGES = ["dashboard", "users", "logs", "reports", "requests", "security"];
 const ACCESS_RESTRICTED_MESSAGE = "Administrator access required.";
 const PUBLIC_REGISTRATION_ROLES = ["student", "staff", "visitor"];
-const PASSWORD_RESET_REDIRECT_URL = "https://akbulut007.github.io/NFC1/reset-password.html";
+const PASSWORD_RESET_CONTEXT_KEY = "smartPassPasswordReset";
 
 function bindLogout() {
   const btn = $("logoutBtn");
@@ -172,7 +172,7 @@ function ensurePasswordResetModal() {
         <label>Personal Access Code
           <input type="password" id="passwordResetAccessCode" class="code-input pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="Enter personal code">
         </label>
-        <button class="primary-btn" type="submit">Send Reset Link</button>
+        <button class="primary-btn" type="submit">Continue</button>
         <p id="passwordResetMessage" class="form-message" aria-live="polite"></p>
       </form>
     </section>
@@ -228,32 +228,54 @@ async function submitPasswordResetRequest(event) {
     return setMessage("passwordResetMessage", "Use User Login recovery for this account.", "error");
   }
 
-  setMessage("passwordResetMessage", "Sending reset link...");
-  const { error } = await db.auth.resetPasswordForEmail(email, {
-    redirectTo: PASSWORD_RESET_REDIRECT_URL
-  });
-  if (error) return setMessage("passwordResetMessage", error.message, "error");
-  setMessage("passwordResetMessage", "Password reset link sent. Please check your email.");
+  sessionStorage.setItem(PASSWORD_RESET_CONTEXT_KEY, JSON.stringify({ email, accessCode }));
+  window.location.href = "reset-password.html";
 }
 
 function initResetPasswordPage() {
+  const resetContext = getPasswordResetContext();
+  if (!resetContext) {
+    setMessage("resetPasswordMessage", "Start password reset from the Forgot password link.", "error");
+    $("resetPasswordForm")?.querySelector("button[type='submit']")?.setAttribute("disabled", "disabled");
+    return;
+  }
   $("resetPasswordForm")?.addEventListener("submit", submitNewPassword);
+}
+
+function getPasswordResetContext() {
+  try {
+    const raw = sessionStorage.getItem(PASSWORD_RESET_CONTEXT_KEY);
+    const context = raw ? JSON.parse(raw) : null;
+    if (!context?.email || !context?.accessCode) return null;
+    return context;
+  } catch (error) {
+    return null;
+  }
 }
 
 async function submitNewPassword(event) {
   event.preventDefault();
+  const resetContext = getPasswordResetContext();
   const newPassword = $("newPassword")?.value || "";
   const confirmPassword = $("confirmNewPassword")?.value || "";
+  if (!resetContext) return setMessage("resetPasswordMessage", "Start password reset from the Forgot password link.", "error");
   if (!newPassword) return setMessage("resetPasswordMessage", "Please enter a new password.", "error");
   if (newPassword.length < 6) return setMessage("resetPasswordMessage", "Password must be at least 6 characters.", "error");
   if (newPassword !== confirmPassword) return setMessage("resetPasswordMessage", "Passwords do not match.", "error");
   if (!db) return setMessage("resetPasswordMessage", "Configure Supabase first.", "error");
 
   setMessage("resetPasswordMessage", "Updating password...");
-  const { error } = await db.auth.updateUser({ password: newPassword });
+  const { data, error } = await db.functions.invoke("reset-user-password", {
+    body: {
+      email: resetContext.email,
+      accessCode: resetContext.accessCode,
+      newPassword
+    }
+  });
   if (error) return setMessage("resetPasswordMessage", error.message, "error");
-  await db.auth.signOut();
-  setMessage("resetPasswordMessage", "Password updated. You can now log in.");
+  if (data?.error) return setMessage("resetPasswordMessage", data.error, "error");
+  sessionStorage.removeItem(PASSWORD_RESET_CONTEXT_KEY);
+  setMessage("resetPasswordMessage", "Password updated successfully. Please login.");
   setTimeout(() => {
     window.location.href = "user-login.html";
   }, 1800);
