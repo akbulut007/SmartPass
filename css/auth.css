@@ -360,6 +360,12 @@
 
 .link-button:hover { color: var(--orange); }
 
+.forgot-password-link {
+  width: fit-content;
+  margin-top: -6px;
+  justify-self: start;
+}
+
 .access-request-modal {
   position: fixed;
   inset: 0;
