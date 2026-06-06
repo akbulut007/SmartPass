@@ -12,7 +12,6 @@ async function init() {
     if (typeof initAccessRequestWidgets === "function") initAccessRequestWidgets();
     return;
   }
-  if (page === "reset-password") return initResetPasswordPage();
   if (page === "message-box") return initMessageBoxPage();
   if (page === "approve") return initMobileApproval();
   if (page === "scan") return initMobileApproval();
