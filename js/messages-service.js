@@ -8,6 +8,16 @@ async function fetchUserMessages(user) {
   return data || [];
 }
 
+async function fetchUnreadMessageCount(user) {
+  const { count, error } = await requireDb()
+    .from("messages")
+    .select("id", { count: "exact", head: true })
+    .eq("email", user.email)
+    .eq("is_read", false);
+  if (error) throw error;
+  return count || 0;
+}
+
 async function markMessageRead(messageId) {
   const { error } = await requireDb()
     .from("messages")

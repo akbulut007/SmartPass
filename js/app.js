@@ -20,6 +20,7 @@ async function init() {
   if (!enforceRoleAccess(user, page)) return;
   renderRoleNavigation(user);
   setSessionInfo(user);
+  updateMessageBadges(user);
   showAccessRestrictionMessage();
 
   if (page === "dashboard") return initDashboard();

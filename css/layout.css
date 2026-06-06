@@ -20,6 +20,10 @@
 .sidebar nav { display: grid; gap: 10px; }
 
 .sidebar nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 12px 14px;
   border-radius: 12px;
   color: var(--muted);
@@ -29,6 +33,18 @@
 }
 
 .sidebar nav a.active, .sidebar nav a:hover { color: var(--text); background: linear-gradient(135deg, rgba(249,115,22,0.16), rgba(124,58,237,0.16)); border-color: rgba(249,115,22,.32); box-shadow: inset 3px 0 0 var(--orange); }
+
+.nav-unread-badge {
+  min-width: 22px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.18);
+  border: 1px solid rgba(249, 115, 22, 0.42);
+  color: #fff7ed;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
 
 .sidebar .ghost-btn { margin-top: auto; }
 

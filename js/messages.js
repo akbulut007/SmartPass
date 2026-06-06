@@ -1,7 +1,9 @@
 var messagesCache = [];
+var activeMessagesUser = null;
 
 async function initMessagesPage(user) {
   if (document.body.dataset.page !== "messages") return;
+  activeMessagesUser = user;
   $("refreshMessagesBtn")?.addEventListener("click", () => loadMessages(user));
   $("messagesList")?.addEventListener("click", openMessageCard);
   return loadMessages(user);
@@ -62,6 +64,7 @@ async function openMessageCard(event) {
       badge.className = "badge reviewed";
       badge.textContent = "READ";
     }
+    updateMessageBadges(activeMessagesUser);
   } catch (error) {
     showPageError(readableDbError(error));
   }

@@ -95,9 +95,30 @@ function renderRoleNavigation(user) {
         ["messages.html", "My Messages"]
       ];
   const currentFile = `${location.pathname.split("/").pop() || "dashboard.html"}`;
-  nav.innerHTML = links.map(([href, label]) => `<a href="${href}" class="${href === currentFile ? "active" : ""}">${label}</a>`).join("");
+  nav.innerHTML = links.map(([href, label]) => {
+    const badge = href === "messages.html" ? `<span id="navMessagesUnread" class="nav-unread-badge" hidden></span>` : "";
+    return `<a href="${href}" class="${href === currentFile ? "active" : ""}">${label}${badge}</a>`;
+  }).join("");
   const logo = document.querySelector(".sidebar .logo");
   if (logo) logo.href = getRoleHomePage(user);
+}
+
+async function updateMessageBadges(user) {
+  if (isAdminUser(user) || typeof fetchUnreadMessageCount !== "function") return;
+  try {
+    const unreadCount = await fetchUnreadMessageCount(user);
+    renderUnreadBadge("navMessagesUnread", unreadCount);
+    setText("identityUnreadCount", `Unread: ${unreadCount}`);
+  } catch (error) {
+    console.warn("[SmartPass] Message badge update failed", error);
+  }
+}
+
+function renderUnreadBadge(id, unreadCount) {
+  const badge = $(id);
+  if (!badge) return;
+  badge.hidden = unreadCount < 1;
+  badge.textContent = unreadCount > 99 ? "99+" : String(unreadCount);
 }
 
 function showAccessRestrictionMessage() {
