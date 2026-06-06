@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/identity-card.css">
   <link rel="stylesheet" href="css/qr-session.css">
+  <link rel="stylesheet" href="css/tables.css">
   <link rel="stylesheet" href="css/approval-animations.css">
   <link rel="stylesheet" href="css/responsive.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -48,7 +49,12 @@
       <div id="sessionInfo" class="session-pill">Checking session...</div>
     </header>
 
-    <section class="card-layout">
+    <div class="identity-tabs" role="tablist" aria-label="My Identity tabs">
+      <button id="qrApprovalTab" class="tab-button active" type="button" data-identity-tab="approval" role="tab" aria-selected="true" aria-controls="qrApprovalView">QR Approval</button>
+      <button id="qrHistoryTab" class="tab-button" type="button" data-identity-tab="history" role="tab" aria-selected="false" aria-controls="qrHistoryView">My QR History</button>
+    </div>
+
+    <section id="qrApprovalView" class="card-layout identity-tab-view active" role="tabpanel" aria-labelledby="qrApprovalTab">
       <article class="identity-card">
         <div class="card-top">
           <span>Digital Identity</span>
@@ -91,6 +97,27 @@
           <p id="qrLink" class="qr-link" hidden></p>
         </details>
       </article>
+    </section>
+
+    <section id="qrHistoryView" class="identity-tab-view" role="tabpanel" aria-labelledby="qrHistoryTab" hidden>
+      <div class="history-summary-grid">
+        <article class="metric-card"><span>Total QR Events</span><strong id="qrHistoryTotal">0</strong></article>
+        <article class="metric-card"><span>Approved</span><strong id="qrHistoryApproved">0</strong></article>
+        <article class="metric-card"><span>Rejected</span><strong id="qrHistoryRejected">0</strong></article>
+        <article class="metric-card"><span>Expired</span><strong id="qrHistoryExpired">0</strong></article>
+        <article class="metric-card last-event-card"><span>Last QR Event</span><strong id="qrHistoryLast">-</strong></article>
+      </div>
+
+      <section class="glass-panel table-panel qr-history-panel">
+        <div class="section-title"><h2>My QR History</h2><button id="refreshQrHistoryBtn" class="ghost-btn" type="button">Refresh</button></div>
+        <p id="qrHistoryMessage" class="form-message" aria-live="polite"></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date / Time</th><th>Result</th><th>UID</th><th>Device</th></tr></thead>
+            <tbody id="qrHistoryTable"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
   </main>
 </body>

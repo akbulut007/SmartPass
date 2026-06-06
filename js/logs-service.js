@@ -12,6 +12,34 @@ async function fetchLogs() {
   return getLogs();
 }
 
+async function fetchQrLogsForCard(card) {
+  const email = String(card?.email || "").toLowerCase();
+  const uid = card?.uid || "";
+  if (!email && !uid) return [];
+
+  let query = requireDb()
+    .from("access_logs")
+    .select(LOG_SELECT)
+    .in("result", ["approved", "rejected", "expired"])
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const filters = [];
+  if (email) filters.push(`email.eq.${email}`);
+  if (uid) {
+    filters.push(`uid.eq.${uid}`);
+    filters.push(`card_uid.eq.${uid}`);
+  }
+  query = query.or(filters.join(","));
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data || []).filter((log) => {
+    const logEmail = String(log.email || "").toLowerCase();
+    return logEmail === email || log.uid === uid || log.card_uid === uid;
+  });
+}
+
 async function insertAccessLog(session, card, result, eventType = DEFAULT_LOCATION, deviceLabel = getDeviceLabel()) {
   const row = {
     uid: session?.uid || card?.uid || "-",

@@ -7,8 +7,12 @@ var isApprovalPollingActive = false;
 var isApprovalPollInFlight = false;
 var mobileApprovalSession = null;
 var mobileApprovalCard = null;
+var currentQrHistoryLogs = [];
+var lastHistoryRefreshSessionState = "";
 
 function initMyIdentity(user) {
+  bindIdentityTabs();
+  $("refreshQrHistoryBtn")?.addEventListener("click", () => loadQrHistory(currentApprovalCard));
   return loadMyCard(user);
 }
 
@@ -18,9 +22,11 @@ async function loadMyCard(user) {
     const card = await ensureUserCard(user);
     renderIdentityCard(card);
     renderApprovalSessionPanel();
+    await loadQrHistory(card);
     const session = await createApprovalSession(card);
     currentApprovalCard = card;
     currentApprovalSession = session;
+    lastHistoryRefreshSessionState = "";
     renderApprovalQr(session, card);
     setApprovalState("waiting", "Waiting", "Waiting for approval.", `Session expires in: ${formatDuration(new Date(session.expires_at).getTime() - Date.now())}`);
     startCountdown(session);
@@ -43,6 +49,58 @@ function renderIdentityCard(card) {
   $("cardRole").textContent = title(card.role);
   $("cardStatus").textContent = title(card.status);
   $("cardStatusDetail").textContent = title(card.status);
+}
+
+function bindIdentityTabs() {
+  document.querySelectorAll("[data-identity-tab]").forEach((button) => {
+    button.addEventListener("click", () => switchIdentityTab(button.dataset.identityTab));
+  });
+}
+
+function switchIdentityTab(tabName) {
+  const isHistory = tabName === "history";
+  document.querySelectorAll("[data-identity-tab]").forEach((button) => {
+    const isActive = button.dataset.identityTab === tabName;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  if ($("qrApprovalView")) $("qrApprovalView").hidden = isHistory;
+  if ($("qrHistoryView")) $("qrHistoryView").hidden = !isHistory;
+  if ($("qrApprovalView")) $("qrApprovalView").classList.toggle("active", !isHistory);
+  if ($("qrHistoryView")) $("qrHistoryView").classList.toggle("active", isHistory);
+  if (isHistory) loadQrHistory(currentApprovalCard);
+}
+
+async function loadQrHistory(card) {
+  if (!card || !$("qrHistoryTable")) return;
+  setMessage("qrHistoryMessage", "Loading...");
+  currentQrHistoryLogs = await safeDataLoad(() => fetchQrLogsForCard(card), []);
+  renderQrHistory(currentQrHistoryLogs);
+}
+
+function renderQrHistory(logs) {
+  const counts = {
+    approved: logs.filter((log) => log.result === "approved").length,
+    rejected: logs.filter((log) => log.result === "rejected").length,
+    expired: logs.filter((log) => log.result === "expired").length
+  };
+  setText("qrHistoryTotal", logs.length);
+  setText("qrHistoryApproved", counts.approved);
+  setText("qrHistoryRejected", counts.rejected);
+  setText("qrHistoryExpired", counts.expired);
+  setText("qrHistoryLast", logs[0] ? formatDate(logs[0].created_at) : "-");
+
+  const table = $("qrHistoryTable");
+  if (!table) return;
+  table.innerHTML = logs.map((log) => `
+    <tr>
+      <td>${formatDate(log.created_at)}</td>
+      <td><span class="badge ${escapeHtml(log.result)}">${escapeHtml(log.result.toUpperCase())}</span></td>
+      <td>${escapeHtml(log.card_uid || log.uid || "-")}</td>
+      <td>${escapeHtml(log.device || "-")}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="4">No QR history yet.</td></tr>`;
+  setMessage("qrHistoryMessage", logs.length ? `Showing ${logs.length} QR event${logs.length === 1 ? "" : "s"}.` : "No QR history yet.");
 }
 
 function startApprovalPolling(sessionId) {
@@ -68,13 +126,16 @@ async function checkApprovalStatus(sessionId) {
     if (session.status === "approved") {
       currentApprovalSession = session;
       setApprovalState("approved", "Approved", "This session was approved.", "Access approved.");
+      refreshQrHistoryForFinalState(session);
       stopTimers();
     } else if (session.status === "rejected") {
       currentApprovalSession = session;
       setApprovalState("rejected", "Rejected", "This session was rejected.", "Access rejected.");
+      refreshQrHistoryForFinalState(session);
       stopTimers();
     } else if (session.status === "expired") {
       setApprovalState("expired", "Expired", "This session has expired.", "");
+      refreshQrHistoryForFinalState(session);
       stopTimers();
     } else {
       const remaining = Math.max(0, new Date(session.expires_at).getTime() - Date.now());
@@ -87,6 +148,13 @@ async function checkApprovalStatus(sessionId) {
   } finally {
     isApprovalPollInFlight = false;
   }
+}
+
+function refreshQrHistoryForFinalState(session) {
+  const refreshKey = `${session.id}:${session.status}`;
+  if (lastHistoryRefreshSessionState === refreshKey) return;
+  lastHistoryRefreshSessionState = refreshKey;
+  loadQrHistory(currentApprovalCard);
 }
 
 function startCountdown(session) {
