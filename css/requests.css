@@ -19,6 +19,48 @@
   line-height: 1.4;
 }
 
+.sent-replies-panel {
+  margin-top: 22px;
+}
+
+.sent-replies-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 14px;
+}
+
+.sent-reply-subject {
+  display: block;
+  max-width: 220px;
+  overflow-wrap: anywhere;
+  color: #fff;
+}
+
+.sent-reply-message {
+  min-width: 220px;
+  max-width: 380px;
+  margin: 0;
+  color: #e2e8f0 !important;
+  line-height: 1.5 !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.request-id-pill {
+  display: inline-flex;
+  max-width: 220px;
+  padding: 7px 10px;
+  border: 1px solid rgba(124,58,237,.3);
+  border-radius: 999px;
+  background: rgba(124,58,237,.08);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
 .event-type {
   display: inline-flex;
   align-items: center;

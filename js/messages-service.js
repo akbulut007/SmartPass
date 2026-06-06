@@ -8,6 +8,15 @@ async function fetchUserMessages(user) {
   return data || [];
 }
 
+async function fetchAllMessages() {
+  const { data, error } = await requireDb()
+    .from("messages")
+    .select(MESSAGE_SELECT)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
 async function markMessageRead(messageId) {
   const { error } = await requireDb()
     .from("messages")

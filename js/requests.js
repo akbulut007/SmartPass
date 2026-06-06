@@ -3,14 +3,17 @@ var accessRequestsCache = [];
 var accessRequestCardsByEmail = new Map();
 var activeRequestFilter = "all";
 var activeReplyRequestId = null;
+var sentRepliesCache = [];
 
 function initRequestsPage() {
   if (document.body.dataset.page !== "requests") return;
   $("refreshRequestsBtn")?.addEventListener("click", () => loadAccessRequestsTable({ resetFilters: true }));
+  $("refreshSentRepliesBtn")?.addEventListener("click", () => loadSentReplies());
   $("requestsSearchInput")?.addEventListener("input", renderFilteredAccessRequestsTable);
+  $("sentRepliesSearchInput")?.addEventListener("input", renderFilteredSentRepliesTable);
   $("requestsQuickFilters")?.addEventListener("click", updateRequestQuickFilter);
   $("requestsTable")?.addEventListener("click", updateRequestStatusFromTable);
-  return loadAccessRequestsTable();
+  return Promise.all([loadAccessRequestsTable(), loadSentReplies()]);
 }
 
 async function loadAccessRequestsTable(options = {}) {
@@ -46,6 +49,42 @@ function renderFilteredAccessRequestsTable() {
   }).join("") || `<tr><td colspan="7">${query || activeRequestFilter !== "all" ? "No matching requests found." : "No requests found."}</td></tr>`;
   if ($("requestsResultCount")) $("requestsResultCount").textContent = `Showing ${requests.length} of ${accessRequestsCache.length} requests`;
   setMessage("requestsMessage", accessRequestsCache.length ? `Showing ${requests.length} of ${accessRequestsCache.length} requests` : "No requests found.");
+}
+
+async function loadSentReplies() {
+  setMessage("sentRepliesMessage", "Loading...");
+  sentRepliesCache = await safeDataLoad(() => fetchAllMessages(), []);
+  renderFilteredSentRepliesTable();
+}
+
+function renderFilteredSentRepliesTable() {
+  const query = ($("sentRepliesSearchInput")?.value || "").trim().toLowerCase();
+  const replies = filterSentReplies(sentRepliesCache, query);
+  $("sentRepliesTable").innerHTML = replies.map((reply) => `
+    <tr>
+      <td>${escapeHtml(reply.email)}</td>
+      <td><strong class="sent-reply-subject">${escapeHtml(reply.subject)}</strong></td>
+      <td><p class="sent-reply-message">${escapeHtml(reply.message)}</p></td>
+      <td><span class="request-id-pill">${escapeHtml(reply.related_request_id || "-")}</span></td>
+      <td><span class="badge ${reply.is_read ? "reviewed" : "pending"}">${reply.is_read ? "READ" : "UNREAD"}</span></td>
+      <td>${formatDate(reply.created_at)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="6">${query ? "No matching sent replies found." : "No sent replies yet."}</td></tr>`;
+  if ($("sentRepliesResultCount")) $("sentRepliesResultCount").textContent = `Showing ${replies.length} of ${sentRepliesCache.length} replies`;
+  setMessage("sentRepliesMessage", sentRepliesCache.length ? `Showing ${replies.length} of ${sentRepliesCache.length} replies` : "No sent replies yet.");
+}
+
+function filterSentReplies(replies, query) {
+  if (!query) return replies;
+  return replies.filter((reply) => [
+    reply.email,
+    reply.subject,
+    reply.message,
+    reply.related_request_id,
+    reply.is_read ? "read" : "unread",
+    formatDate(reply.created_at),
+    reply.created_at
+  ].some((value) => String(value || "").toLowerCase().includes(query)));
 }
 
 function filterAccessRequests(requests, query, quickFilter) {
@@ -192,6 +231,7 @@ async function submitRequestReply(event) {
     await sendRequestReply(request, subject, message);
     setMessage("requestsMessage", "Reply sent to user inbox.");
     closeRequestReplyModal();
+    await loadSentReplies();
   } catch (error) {
     setMessage("requestReplyMessageStatus", readableDbError(error), "error");
   } finally {

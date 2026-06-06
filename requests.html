@@ -69,6 +69,21 @@
         </table>
       </div>
     </section>
+
+    <section class="glass-panel table-panel sent-replies-panel">
+      <div class="section-title"><h2>Sent Replies</h2><button id="refreshSentRepliesBtn" class="ghost-btn" type="button">Refresh</button></div>
+      <div class="sent-replies-filter-bar">
+        <input id="sentRepliesSearchInput" type="search" placeholder="Search replies by email, subject, message, read status, request ID, or date" autocomplete="off">
+        <span id="sentRepliesResultCount" class="users-result-count">Showing 0 of 0 replies</span>
+      </div>
+      <p id="sentRepliesMessage" class="form-message" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>To Email</th><th>Subject</th><th>Message</th><th>Related Request</th><th>Read Status</th><th>Sent At</th></tr></thead>
+          <tbody id="sentRepliesTable"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 </body>
 </html>
