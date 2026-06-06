@@ -130,7 +130,7 @@ async function createStandaloneUserCard(record) {
 async function fetchCardByEmail(email) {
   const { data, error } = await requireDb()
     .from("cards")
-    .select("id,email")
+    .select(CARD_SELECT)
     .eq("email", email)
     .maybeSingle();
   if (error) throw error;

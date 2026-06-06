@@ -2,6 +2,7 @@ const ACCESS_REQUEST_STATUSES = ["reviewed", "approved", "rejected"];
 var accessRequestsCache = [];
 var accessRequestCardsByEmail = new Map();
 var activeRequestFilter = "all";
+var activeReplyRequestId = null;
 
 function initRequestsPage() {
   if (document.body.dataset.page !== "requests") return;
@@ -39,6 +40,7 @@ function renderFilteredAccessRequestsTable() {
         <td>${formatDate(request.created_at)}</td>
         <td><div class="request-actions">
           ${ACCESS_REQUEST_STATUSES.map((status) => `<button class="ghost-btn" type="button" data-request-id="${request.id}" data-request-status="${status}" ${request.status === status ? "disabled" : ""}>${requestActionLabel(status)}</button>`).join("")}
+          <button class="ghost-btn" type="button" data-request-reply-id="${request.id}">Reply</button>
         </div></td>
       </tr>`;
   }).join("") || `<tr><td colspan="7">${query || activeRequestFilter !== "all" ? "No matching requests found." : "No requests found."}</td></tr>`;
@@ -95,6 +97,12 @@ function requestActionLabel(status) {
 }
 
 async function updateRequestStatusFromTable(event) {
+  const replyButton = event.target.closest("[data-request-reply-id]");
+  if (replyButton) {
+    openRequestReplyModal(replyButton.dataset.requestReplyId);
+    return;
+  }
+
   const button = event.target.closest("[data-request-id]");
   if (!button) return;
   button.disabled = true;
@@ -106,5 +114,87 @@ async function updateRequestStatusFromTable(event) {
   } catch (error) {
     button.disabled = false;
     showPageError(readableDbError(error));
+  }
+}
+
+function ensureRequestReplyModal() {
+  let modal = $("requestReplyModal");
+  if (modal) return modal;
+
+  modal = document.createElement("div");
+  modal.id = "requestReplyModal";
+  modal.className = "request-reply-modal";
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="request-reply-backdrop" data-close-request-reply></div>
+    <section class="request-reply-panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="requestReplyTitle">
+      <div class="request-reply-header">
+        <div>
+          <p class="eyebrow">SmartPass</p>
+          <h2 id="requestReplyTitle">Reply to Request</h2>
+        </div>
+        <button class="ghost-btn request-close-btn" type="button" data-close-request-reply>Close</button>
+      </div>
+      <form id="requestReplyForm" class="request-reply-form" novalidate>
+        <label>To
+          <input id="requestReplyTo" type="email" readonly>
+        </label>
+        <label>Subject
+          <input id="requestReplySubject" type="text" required maxlength="120" placeholder="Request update">
+        </label>
+        <label>Message
+          <textarea id="requestReplyMessage" rows="5" required placeholder="Write your reply"></textarea>
+        </label>
+        <button class="primary-btn" type="submit">Send Reply</button>
+        <p id="requestReplyMessageStatus" class="form-message" aria-live="polite"></p>
+      </form>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  modal.querySelectorAll("[data-close-request-reply]").forEach((button) => {
+    button.addEventListener("click", closeRequestReplyModal);
+  });
+  modal.querySelector("#requestReplyForm")?.addEventListener("submit", submitRequestReply);
+  return modal;
+}
+
+function openRequestReplyModal(requestId) {
+  const request = accessRequestsCache.find((item) => item.id === requestId);
+  if (!request) return;
+  activeReplyRequestId = requestId;
+  const modal = ensureRequestReplyModal();
+  $("requestReplyTo").value = request.email || "";
+  $("requestReplySubject").value = `Re: ${formatRequestType(request.request_type)} request`;
+  $("requestReplyMessage").value = "";
+  setMessage("requestReplyMessageStatus", "");
+  modal.hidden = false;
+}
+
+function closeRequestReplyModal() {
+  const modal = $("requestReplyModal");
+  if (modal) modal.hidden = true;
+  activeReplyRequestId = null;
+}
+
+async function submitRequestReply(event) {
+  event.preventDefault();
+  const request = accessRequestsCache.find((item) => item.id === activeReplyRequestId);
+  const subject = $("requestReplySubject")?.value.trim() || "";
+  const message = $("requestReplyMessage")?.value.trim() || "";
+  if (!request) return setMessage("requestReplyMessageStatus", "Request was not found.", "error");
+  if (!subject) return setMessage("requestReplyMessageStatus", "Please enter a subject.", "error");
+  if (!message) return setMessage("requestReplyMessageStatus", "Please enter a message.", "error");
+
+  const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+  setMessage("requestReplyMessageStatus", "Sending reply...");
+  try {
+    await sendRequestReply(request, subject, message);
+    setMessage("requestsMessage", "Reply sent to user inbox.");
+    closeRequestReplyModal();
+  } catch (error) {
+    setMessage("requestReplyMessageStatus", readableDbError(error), "error");
+  } finally {
+    submitButton.disabled = false;
   }
 }

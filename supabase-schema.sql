@@ -44,6 +44,17 @@ create table if not exists public.access_requests (
   constraint access_requests_status_check check (status in ('pending', 'reviewed', 'approved', 'rejected'))
 );
 
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade,
+  email text not null,
+  subject text not null,
+  message text not null,
+  related_request_id uuid,
+  is_read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
 do $$
 begin
   if to_regclass('public.cards') is not null then
@@ -106,11 +117,16 @@ create index if not exists access_logs_created_at_idx on public.access_logs(crea
 create index if not exists access_requests_created_at_idx on public.access_requests(created_at desc);
 create index if not exists access_requests_email_idx on public.access_requests(email);
 create index if not exists access_requests_status_idx on public.access_requests(status);
+create index if not exists messages_email_idx on public.messages(email);
+create index if not exists messages_user_id_idx on public.messages(user_id);
+create index if not exists messages_created_at_idx on public.messages(created_at desc);
+create index if not exists messages_is_read_idx on public.messages(is_read);
 
 alter table public.users_cards enable row level security;
 alter table public.approval_sessions enable row level security;
 alter table public.access_logs enable row level security;
 alter table public.access_requests enable row level security;
+alter table public.messages enable row level security;
 
 drop policy if exists "read digital identity registry" on public.users_cards;
 create policy "read digital identity registry"
@@ -203,4 +219,50 @@ using (
 with check (
   lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
   and status in ('pending', 'reviewed', 'approved', 'rejected')
+);
+
+drop policy if exists "users can read own messages" on public.messages;
+create policy "users can read own messages"
+on public.messages for select
+to authenticated
+using (
+  lower(email) = lower(auth.jwt() ->> 'email')
+);
+
+drop policy if exists "users can update own messages" on public.messages;
+create policy "users can update own messages"
+on public.messages for update
+to authenticated
+using (
+  lower(email) = lower(auth.jwt() ->> 'email')
+)
+with check (
+  lower(email) = lower(auth.jwt() ->> 'email')
+);
+
+drop policy if exists "admins can read all messages" on public.messages;
+create policy "admins can read all messages"
+on public.messages for select
+to authenticated
+using (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+);
+
+drop policy if exists "admins can insert messages" on public.messages;
+create policy "admins can insert messages"
+on public.messages for insert
+to authenticated
+with check (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+);
+
+drop policy if exists "admins can update all messages" on public.messages;
+create policy "admins can update all messages"
+on public.messages for update
+to authenticated
+using (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
+)
+with check (
+  lower(auth.jwt() ->> 'email') in ('yusufakbulut522@gmail.com', 'muhammed25yusuf@gmail.com')
 );

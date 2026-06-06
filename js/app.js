@@ -24,6 +24,7 @@ async function init() {
 
   if (page === "dashboard") return initDashboard();
   if (page === "my-card") return initMyIdentity(user);
+  if (page === "messages") return initMessagesPage(user);
   if (page === "users") return initUsers();
   if (page === "logs") return initLogs();
   if (page === "reports") return initReports();

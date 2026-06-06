@@ -90,7 +90,10 @@ function renderRoleNavigation(user) {
         ["requests.html", "Requests"],
         ["security.html", "Security"]
       ]
-    : [["my-card.html", "My Identity"]];
+    : [
+        ["my-card.html", "My Identity"],
+        ["messages.html", "My Messages"]
+      ];
   const currentFile = `${location.pathname.split("/").pop() || "dashboard.html"}`;
   nav.innerHTML = links.map(([href, label]) => `<a href="${href}" class="${href === currentFile ? "active" : ""}">${label}</a>`).join("");
   const logo = document.querySelector(".sidebar .logo");
