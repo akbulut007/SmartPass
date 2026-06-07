@@ -1,4 +1,4 @@
-const PUBLIC_BASE_URL = "https://akbulut007.github.io/NFC1";
+const PUBLIC_BASE_URL = "https://akbulut007.github.io/SmartPass";
 const APPROVE_BASE_URL = `${PUBLIC_BASE_URL}/approve.html`;
 const POLL_INTERVAL_MS = 2000;
 const SESSION_DURATION_MS = 60 * 1000;
