@@ -72,7 +72,6 @@ async function logActivity(eventType, { email = "-", uid = "-", result, device, 
   try {
     await db.from("access_logs").insert(row);
   } catch (error) {
-    console.warn("[SmartPass] Activity log failed", error);
   }
 }
 
@@ -84,7 +83,6 @@ async function logAuthActivity(eventType, userOrEmail, extra = {}) {
       const card = await getUserCard(userOrEmail);
       uid = card?.uid || uid;
     } catch (error) {
-      console.warn("[SmartPass] Activity card lookup failed", error);
     }
   }
   await logActivity(eventType, { email: email || "-", uid, ...extra });

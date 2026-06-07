@@ -3,7 +3,6 @@ async function adminLogin(event) {
   const email = $("adminLoginEmail").value.trim().toLowerCase();
   const password = $("adminLoginPassword").value;
   const code = $("adminPersonalAccessCode")?.value.trim() || "";
-  console.log("[SmartPass] Admin login input email:", email);
 
   if (!email) {
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
@@ -24,9 +23,7 @@ async function adminLogin(event) {
     email,
     password
   });
-  console.log("[SmartPass] Admin login Supabase auth success:", !error);
   if (error) {
-    console.error("[ADMIN LOGIN ERROR]", error);
     await logActivity("admin_login_failed", { email, location: "admin_login_failed" });
     return setMessage("authMessage", "Invalid email or password", "error");
   }

@@ -176,14 +176,6 @@
   font-weight: 900;
 }
 
-.local-demo-note {
-  margin: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  color: var(--muted) !important;
-  font-size: 12px;
-}
-
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(124,58,237,.24); }
   50% { box-shadow: 0 0 0 26px rgba(124,58,237,0); }

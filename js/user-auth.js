@@ -125,7 +125,6 @@ async function register(event) {
     });
 
     if (insertError) {
-      console.error(insertError);
       const sessionUser = await getCurrentUser();
       if (sessionUser) await db.auth.signOut();
       return setMessage("authMessage", insertError.message, "error");
@@ -153,7 +152,7 @@ function renderRegisterSuccess(accessCode) {
   card.hidden = false;
   card.innerHTML = `
     <div class="register-success-head">
-      <span class="register-success-check">✓</span>
+      <span class="register-success-check">OK</span>
       <div>
         <h3>Registration successful</h3>
         <p>Your personal access code</p>

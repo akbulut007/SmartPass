@@ -217,7 +217,7 @@ function setApprovalState(state, titleText, detailText, subdetailText = "") {
   }
   if ($("approvalIcon")) {
     $("approvalIcon").className = `approval-icon ${state}`;
-    $("approvalIcon").textContent = state === "approved" ? "✓" : state === "rejected" ? "×" : state === "expired" ? "!" : "...";
+    $("approvalIcon").textContent = state === "approved" ? "OK" : state === "rejected" ? "X" : state === "expired" ? "!" : "...";
   }
   if ($("approvalStatus")) $("approvalStatus").textContent = titleText;
   if ($("approvalDetail")) $("approvalDetail").textContent = detailText;

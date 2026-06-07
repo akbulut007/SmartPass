@@ -13,7 +13,6 @@ async function logout() {
     const user = await getCurrentUser();
     await logAuthActivity("logout", user);
   } catch (error) {
-    console.warn("[SmartPass] Logout activity log failed", error);
   }
   stopTimers();
   if (db) await db.auth.signOut();
