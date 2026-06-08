@@ -1,5 +1,18 @@
 # SmartPass
 
+![HTML5](https://img.shields.io/badge/HTML5-orange)
+![CSS3](https://img.shields.io/badge/CSS3-blue)
+![JavaScript](https://img.shields.io/badge/JavaScript-yellow)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
+![GitHub Pages](https://img.shields.io/badge/Deployment-GitHub%20Pages-black)
+
+## QR Code-Based Digital Identity and Access Management System
+
+SmartPass is a web-based...
+
+# SmartPass
+
 ## QR Code-Based Digital Identity and Access Management System
 
 SmartPass is a web-based digital identity and access management system developed as a Bachelor's degree project in Computer Science. The application provides secure user authentication, QR code-based identity verification, administrator approval workflows, and centralized access management.
